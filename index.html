@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#10251e">
+  <meta name="description" content="本地优先、可离线使用的个人生活管理 RPG">
+  <title>Life Campaign</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="synced">
+  <div class="app-shell">
+    <aside class="rail">
+      <div class="brand"><span class="brand-mark">⌕</span><div><strong>LIFE<br>CAMPAIGN</strong><small>个人调查档案</small></div></div>
+      <nav class="nav-list" aria-label="主导航">
+        <button class="nav-item active" data-tab="today"><span>◷</span>今日</button>
+        <button class="nav-item" data-tab="archive"><span>▰</span>档案</button>
+        <button class="nav-item" data-tab="investigator"><span>♙</span>调查员</button>
+        <button class="nav-item" data-tab="logs"><span>≡</span>记录</button>
+      </nav>
+      <div class="rail-foot"><span class="status-dot"></span><span data-sync-status>本机保存 · 可离线使用</span></div>
+    </aside>
+    <div class="cloud-status-mobile"><span class="status-dot"></span><span data-sync-status>本机保存 · 可离线使用</span></div>
+
+    <main>
+      <section class="view active" id="today-view">
+        <header class="topbar">
+          <div><p class="eyebrow">TODAY / 调查日程</p><h1 id="date-title">今天</h1><p class="muted" id="week-label">第 1 周</p></div>
+          <div class="top-actions"><div class="date-controls"><button class="icon-btn" id="prev-day" aria-label="前一天">‹</button><button class="ghost-btn" id="go-today">今天</button><button class="icon-btn" id="next-day" aria-label="后一天">›</button></div><button class="settle-btn" id="settle-day">🏕 今日结算</button></div>
+        </header>
+        <div class="today-grid">
+          <article class="panel timeline-panel">
+            <div class="panel-head"><div><p class="section-code">TIME LINE</p><h2>今日时间轴</h2><p class="muted timeline-hint">拖动行动到空闲时段，或点击空闲处添加。</p></div><button class="primary-btn" id="add-action">＋ 新建行动</button></div>
+            <div id="timeline" class="timeline"></div>
+          </article>
+          <aside class="side-stack">
+            <article class="panel pending-panel"><div class="panel-head compact"><div><p class="section-code">UNSCHEDULED</p><h2>待安排行动 <span class="count" id="pending-count">0</span></h2></div></div><div id="pending-list"></div></article>
+            <article class="panel habit-panel"><div class="panel-head compact"><div><p class="section-code">ROUTINE</p><h2>今日习惯</h2></div><button class="mini-add" id="add-habit" aria-label="添加习惯">＋</button></div><div id="habit-list"></div></article>
+            <article class="panel daily-event-panel"><div class="daily-event-head"><div><p class="section-code">DAILY EVENT</p><h2>每日事件</h2></div><span aria-hidden="true">⚄</span></div><div id="daily-event-content"></div><details class="event-table"><summary>编辑我的随机事件表</summary><div id="event-table-list"></div><button class="ghost-btn" id="add-daily-event">＋ 添加事件</button></details></article>
+            <article class="panel supply-quick"><p class="section-code">WEEKLY SUPPLY</p><h2>本周补给</h2><p id="supply-quick-copy" class="muted">记录这周吃过的食物种类。</p><button class="primary-btn" id="record-supply-today">＋ 记录补给</button></article>
+            <article class="brief-card"><p class="section-code">DAILY BRIEF</p><div class="brief-row"><span>已完成</span><strong id="complete-rate">0 / 0</strong></div><div class="progress"><i id="progress-bar"></i></div><p class="muted" id="brief-copy">今天的调查尚未开始。</p></article>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="archive-view">
+        <header class="topbar"><div><p class="eyebrow">ARCHIVE / 档案</p><h1>调查档案馆</h1><p class="muted">课程、模组与现实人物档案集中在这里。</p></div></header>
+        <nav class="subnav" aria-label="档案分类"><button class="active" data-archive-section="courses">课程表</button><button data-archive-section="cases">模组 Case</button><button data-archive-section="npcs">NPC</button></nav>
+
+        <section class="archive-section active" id="courses-section">
+          <div class="section-toolbar"><div><p class="section-code">COURSE TABLE</p><h2>课程表</h2></div><button class="primary-btn" id="add-course">＋ 添加课程</button></div>
+          <article class="panel term-panel"><label for="term-start"><span class="section-code">TERM ORIGIN</span>第一周开始日</label><input type="date" id="term-start"></article>
+          <div id="course-board" class="course-board"></div>
+        </section>
+
+        <section class="archive-section" id="cases-section">
+          <div class="section-toolbar"><div><p class="section-code">CASE FILES</p><h2>模组档案</h2><p class="muted">模组不会预设全部任务，行动和线索可以随调查动态增加。</p></div><button class="primary-btn" id="add-case">＋ 新建模组</button></div>
+          <div id="case-board" class="case-board"></div>
+        </section>
+
+        <section class="archive-section" id="npcs-section">
+          <div class="section-toolbar"><div><p class="section-code">NPC DOSSIER</p><h2>人物档案</h2><p class="muted">记录喜好、重要信息与相关线索，不设置好感度。</p></div><button class="primary-btn" id="add-npc">＋ 添加 NPC</button></div>
+          <div id="npc-board" class="npc-board"></div>
+        </section>
+      </section>
+
+      <section class="view" id="investigator-view">
+        <header class="topbar"><div><p class="eyebrow">INVESTIGATOR / 调查员</p><h1>调查员档案</h1><p class="muted">现实世界里的长期角色卡。</p></div><div class="backup-actions"><button class="ghost-btn" id="export-data">导出备份</button><label class="ghost-btn import-label">导入备份<input id="import-data" type="file" accept="application/json" hidden></label></div></header>
+        <div class="investigator-layout">
+          <article class="dossier panel">
+            <label class="avatar-slot" for="avatar-input"><img id="avatar-preview" alt="用户自己的角色素材" hidden><span id="avatar-placeholder">＋<small>放入你的角色素材</small></span><input id="avatar-input" type="file" accept="image/*" hidden></label>
+            <div class="identity"><p class="section-code">PLAYER CHARACTER</p><div class="name-row"><h2 id="investigator-name">未命名调查员</h2><button class="text-btn" id="rename-investigator">修改</button></div><div class="rank">LEVEL <strong id="level-value">01</strong></div><p><b id="xp-value">0</b> XP　·　<b id="coin-value">0</b> 金币</p><div class="level-progress"><i id="level-progress-bar"></i></div><small id="next-level-copy">距离下一级还需 100 XP</small></div>
+          </article>
+          <article class="panel growth-card"><div class="panel-head compact"><div><p class="section-code">SKILLS</p><h2>技能</h2></div><button class="mini-add" id="add-skill">＋</button></div><div id="skill-board" class="skill-board"></div></article>
+        </div>
+        <article class="panel inventory-panel"><div class="panel-head compact"><div><p class="section-code">INVENTORY</p><h2>背包</h2></div><span id="inventory-count" class="count">0</span></div><div id="inventory-list"></div></article>
+        <article class="panel shop-panel"><div class="panel-head compact"><div><p class="section-code">REWARD SHOP</p><h2>奖励商店</h2></div><button class="primary-btn" id="add-reward">＋ 添加奖励</button></div><div id="shop-board" class="shop-board"></div></article>
+      </section>
+
+      <section class="view" id="logs-view">
+        <header class="topbar"><div><p class="eyebrow">CHRONICLE / 记录</p><h1>调查记录</h1><p class="muted">真实完成过的事，会在这里留下痕迹。</p></div></header>
+        <div class="stat-grid"><article><span>行动完成</span><strong id="stat-actions">0</strong></article><article><span>已建课程</span><strong id="stat-courses">0</strong></article><article><span>调查模组</span><strong id="stat-cases">0</strong></article><article><span>获得线索</span><strong id="stat-clues">0</strong></article></div>
+        <div class="log-grid"><article class="panel log-card"><p class="section-code">SESSION LOG</p><h2>每日结算</h2><div id="session-log-list"></div></article><article class="panel log-card"><p class="section-code">CASE LOG</p><h2>结案报告</h2><div id="case-log-list"></div></article></div>
+        <article class="panel event-log"><p class="section-code">DAILY EVENT LOG</p><h2>每日事件记录</h2><div id="daily-event-log-list"></div></article>
+        <article class="panel supply-panel"><div class="supply-heading"><div><p class="section-code">WEEKLY SUPPLY LOG</p><h2>每周补给图鉴</h2><p class="muted">只记录吃过什么，不计算热量或健康分。</p></div><button class="primary-btn" id="record-supply-log">＋ 记录一餐</button></div><div class="supply-week-bar"><div class="date-controls"><button class="icon-btn" id="supply-prev-week" aria-label="上一周">‹</button><button class="ghost-btn" id="supply-current-week">本周</button><button class="icon-btn" id="supply-next-week" aria-label="下一周">›</button></div><strong id="supply-week-label"></strong><span id="supply-coverage"></span></div><div id="supply-board" class="supply-board"></div><div class="supply-history-head"><h3>本周记录</h3><button class="ghost-btn" id="add-supply-item">＋ 自定义食物种类</button></div><div id="supply-history"></div></article>
+        <article class="panel purchase-log"><p class="section-code">REWARDS CLAIMED</p><h2>奖励兑换记录</h2><div id="purchase-list"></div></article>
+      </section>
+    </main>
+
+    <nav class="mobile-nav" aria-label="主导航"><button class="nav-item active" data-tab="today"><span>◷</span>今日</button><button class="nav-item" data-tab="archive"><span>▰</span>档案</button><button class="nav-item" data-tab="investigator"><span>♙</span>调查员</button><button class="nav-item" data-tab="logs"><span>≡</span>记录</button></nav>
+  </div>
+
+  <dialog id="action-dialog"><form id="action-form"><input type="hidden" id="action-id"><div class="dialog-head"><div><p class="section-code">ACTION</p><h2 id="action-dialog-title">新建行动</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>行动名称<input id="action-title" required maxlength="80" placeholder="例如：修改论文 3.3"></label><div class="form-row"><label>日期<input id="action-date" type="date" required></label><label>开始时间（可留空）<input id="action-time" type="time"></label></div><div class="form-row"><label>预计耗时<select id="action-duration"><option value="15">15 分钟</option><option value="30">30 分钟</option><option value="45">45 分钟</option><option value="60">60 分钟</option><option value="90">90 分钟</option><option value="120">120 分钟</option></select></label><label>难度<select id="action-difficulty"><option value="1">★☆☆☆☆</option><option value="2">★★☆☆☆</option><option value="3">★★★☆☆</option><option value="4">★★★★☆</option><option value="5">★★★★★</option></select></label></div><div class="form-row"><label>所属模组<select id="action-case"></select></label><label>使用技能<select id="action-skill"></select></label></div><label>备注<textarea id="action-notes" rows="3" placeholder="可选"></textarea></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存行动</button></div></form></dialog>
+
+  <dialog id="schedule-dialog"><form id="schedule-form"><input type="hidden" id="schedule-action-id"><div class="dialog-head"><div><p class="section-code">TIME BLOCK</p><h2 id="schedule-title">安排行动</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><p class="muted" id="schedule-action-name"></p><div class="form-row"><label>日期<input id="schedule-date" type="date" required></label><label>预计耗时（分钟）<input id="schedule-duration" type="number" min="5" max="480" step="5" required></label></div><p class="schedule-label">可用时段</p><div id="schedule-suggestions" class="schedule-suggestions"></div><label>开始时间<input id="schedule-time" type="time" required></label><p id="schedule-conflict" class="schedule-conflict" role="status"></p><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">放进时间轴</button></div></form></dialog>
+
+  <dialog id="course-dialog"><form id="course-form"><input type="hidden" id="course-id"><div class="dialog-head"><div><p class="section-code">COURSE FILE</p><h2 id="course-dialog-title">添加课程</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>课程名称<input id="course-name" required maxlength="80" placeholder="例如：电力系统分析"></label><div class="form-row"><label>星期<select id="course-weekday"><option value="1">星期一</option><option value="2">星期二</option><option value="3">星期三</option><option value="4">星期四</option><option value="5">星期五</option><option value="6">星期六</option><option value="0">星期日</option></select></label><label>地点<input id="course-location" placeholder="例如：A203"></label></div><div class="form-row"><label>开始<input id="course-start" type="time" value="08:30" required></label><label>结束<input id="course-end" type="time" value="10:05" required></label></div><div class="form-row"><label>起始周<input id="course-first-week" type="number" min="1" max="40" value="1"></label><label>结束周<input id="course-last-week" type="number" min="1" max="40" value="20"></label></div><label>重复规则<select id="course-repeat"><option value="weekly">每周</option><option value="odd">单周</option><option value="even">双周</option><option value="custom">指定周</option></select></label><label id="course-weeks-wrap" hidden>指定周数（逗号分隔，可写 5-8）<input id="course-weeks" maxlength="100" placeholder="例如：1,3,5-8"></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存课程</button></div></form></dialog>
+
+  <dialog id="habit-dialog"><form id="habit-form"><div class="dialog-head"><div><p class="section-code">ROUTINE</p><h2>添加习惯</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>习惯名称<input id="habit-name" required maxlength="60" placeholder="例如：背单词"></label><div class="form-row"><label>类型<select id="habit-type"><option value="check">完成型</option><option value="count">数量型</option></select></label><label>目标数量<input id="habit-target" type="number" min="1" max="999" value="1"></label></div><div class="form-row"><label>单位<input id="habit-unit" maxlength="12" placeholder="次 / 分钟 / 杯"></label><label>频率<select id="habit-repeat"><option value="daily">每天</option><option value="weekdays">指定星期</option><option value="weekly">每周累计</option></select></label></div><label id="habit-weekdays-wrap">指定星期（可多选）<div class="weekday-picker"><label><input type="checkbox" value="1">一</label><label><input type="checkbox" value="2">二</label><label><input type="checkbox" value="3">三</label><label><input type="checkbox" value="4">四</label><label><input type="checkbox" value="5">五</label><label><input type="checkbox" value="6">六</label><label><input type="checkbox" value="0">日</label></div></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存习惯</button></div></form></dialog>
+
+  <dialog id="case-dialog"><form id="case-form"><div class="dialog-head"><div><p class="section-code">CASE FILE</p><h2>新建模组</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>模组名称<input id="case-title" required maxlength="80" placeholder="例如：消失的论文终稿"></label><div class="form-row"><label>主题<input id="case-theme" maxlength="30" placeholder="学习 / 健康 / 项目"></label><label>Deadline<input id="case-deadline" type="date"></label></div><label>概要<textarea id="case-summary" rows="4" placeholder="这个模组想解决什么？"></textarea></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">开启调查</button></div></form></dialog>
+
+  <dialog id="case-detail-dialog" class="wide-dialog"><div class="dialog-page"><div class="dialog-head"><div><p class="section-code">CASE DOSSIER</p><h2 id="case-detail-title">模组档案</h2><p class="muted" id="case-detail-meta"></p></div><button type="button" class="icon-btn close" data-close>×</button></div><p id="case-detail-summary" class="case-summary"></p><div class="case-detail-actions"><button class="ghost-btn" id="case-add-action">＋ 行动</button><button class="ghost-btn" id="case-add-clue">＋ 线索</button><button class="ghost-btn" id="case-add-clock">＋ Clock</button><button class="ghost-btn" id="case-add-journal">＋ 手记</button><button class="danger-btn" id="case-toggle-status">结案</button></div><div class="case-detail-grid"><section><h3>行动</h3><div id="case-actions"></div></section><section><h3>线索</h3><div id="case-clues"></div></section><section><h3>Clock</h3><div id="case-clocks"></div></section><section><h3>调查手记</h3><div id="case-journal"></div></section></div></div></dialog>
+
+  <dialog id="clue-dialog"><form id="clue-form"><div class="dialog-head"><div><p class="section-code">CLUE</p><h2>添加线索</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>线索标题<input id="clue-title" required maxlength="100"></label><label>详情<textarea id="clue-detail" rows="4"></textarea></label><label>来源 NPC<select id="clue-source"></select></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存线索</button></div></form></dialog>
+
+  <dialog id="clock-dialog"><form id="clock-form"><div class="dialog-head"><div><p class="section-code">CLOCK</p><h2>添加 Clock</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>名称<input id="clock-name" required maxlength="60" placeholder="例如：论文完成度"></label><div class="form-row"><label>当前格<input id="clock-current" type="number" min="0" value="0"></label><label>总格数<input id="clock-max" type="number" min="2" max="12" value="6"></label></div><label>说明<input id="clock-note" maxlength="100"></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存 Clock</button></div></form></dialog>
+
+  <dialog id="journal-dialog"><form id="journal-form"><div class="dialog-head"><div><p class="section-code">INVESTIGATION NOTE</p><h2>调查手记</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>记录<textarea id="journal-text" rows="6" required placeholder="记录进展、想法或下一步方向"></textarea></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存手记</button></div></form></dialog>
+
+  <dialog id="npc-dialog"><form id="npc-form"><div class="dialog-head"><div><p class="section-code">NPC DOSSIER</p><h2>添加 NPC</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>姓名<input id="npc-name" required maxlength="60"></label><label>关系 / 身份<input id="npc-relation" maxlength="60" placeholder="老师 / 同学 / 朋友"></label><label>喜好（每行一条）<textarea id="npc-preferences" rows="4" placeholder="喜欢先看结论&#10;喜欢喝拿铁"></textarea></label><label>重要信息（每行一条）<textarea id="npc-important" rows="4" placeholder="沟通忌讳、生日等事实"></textarea></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存 NPC</button></div></form></dialog>
+
+  <dialog id="skill-dialog"><form id="skill-form"><div class="dialog-head"><div><p class="section-code">SKILL</p><h2>添加技能</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>技能名称<input id="skill-name" required maxlength="50" placeholder="论文写作 / 跑步 / 英语"></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存技能</button></div></form></dialog>
+
+  <dialog id="reward-dialog"><form id="reward-form"><div class="dialog-head"><div><p class="section-code">REWARD</p><h2>添加奖励</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><label>奖励名称<input id="reward-name" required maxlength="60" placeholder="看一集剧 / 买一本书"></label><label>价格（金币）<input id="reward-cost" type="number" min="1" max="99999" value="50" required></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存奖励</button></div></form></dialog>
+  <dialog id="daily-event-dialog"><form id="daily-event-form"><input type="hidden" id="daily-event-id"><div class="dialog-head"><div><p class="section-code">RANDOM TABLE</p><h2 id="daily-event-dialog-title">添加每日事件</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>事件名称<input id="daily-event-name" required maxlength="60" placeholder="例如：旧案重启"></label><label>要做什么<textarea id="daily-event-description" required rows="3" maxlength="180" placeholder="写下清楚、可自行判断完成的挑战"></textarea></label><div class="form-row"><label>完成后 XP<input id="daily-event-xp" type="number" min="0" max="100" value="20" required></label><label>完成后金币<input id="daily-event-coins" type="number" min="0" max="100" value="10" required></label></div><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存事件</button></div></form></dialog>
+
+  <dialog id="session-dialog"><form id="session-form"><div class="dialog-head"><div><p class="section-code">SESSION END</p><h2>今日结算</h2></div><button type="button" class="icon-btn close" data-close>×</button></div><div id="session-summary" class="session-summary"></div><label>今日备注<textarea id="session-note" rows="5" placeholder="今天有什么值得记下？"></textarea></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">生成 Session Log</button></div></form></dialog>
+
+  <dialog id="supply-dialog" class="wide-dialog"><form id="supply-form"><input type="hidden" id="supply-entry-id"><div class="dialog-head"><div><p class="section-code">SUPPLY RECORD</p><h2 id="supply-dialog-title">记录一餐</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label class="supply-date-label">日期<input id="supply-date" type="date" required></label><p class="muted">勾选这一餐吃到的种类；同一天可以记多餐。</p><div id="supply-picker" class="supply-picker"></div><label>备注（可选）<input id="supply-note" maxlength="120" placeholder="例如：午饭"></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存补给</button></div></form></dialog>
+  <dialog id="supply-item-dialog"><form id="supply-item-form"><input type="hidden" id="supply-item-id"><div class="dialog-head"><div><p class="section-code">SUPPLY CATEGORY</p><h2 id="supply-item-title">自定义食物种类</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>名称<input id="supply-item-name" required maxlength="30" placeholder="例如：海藻"></label><div class="form-row"><label>分类<select id="supply-item-group"><option value="vegetable">蔬菜</option><option value="fruit">水果</option><option value="protein">肉类与蛋白质</option><option value="other">其他</option></select></label><label>每周目标次数<input id="supply-item-target" type="number" min="1" max="20" value="1" required></label></div><p class="muted">默认 1 次，即本周吃过就点亮；次数仅用于自己的记录。</p><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存种类</button></div></form></dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
