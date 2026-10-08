@@ -48,3 +48,106 @@ input:focus,select:focus,textarea:focus{outline:3px solid #8acb9b55;border-color
 
 /* Keep iOS Safari from auto-zooming focused form controls. */
 input,select,textarea{font-size:16px}
+
+/* Today workspace V3: fixed dashboard with independently scrollable panels. */
+body:has(#today-view.active){overflow:hidden}
+main:has(#today-view.active){height:100dvh;overflow:hidden}
+.today-dashboard{height:100dvh;max-width:none;padding:18px clamp(16px,2vw,30px) 22px;overflow:hidden}
+.today-topbar{min-height:62px;margin-bottom:12px;align-items:center}
+.today-title-row{display:flex;align-items:baseline;gap:12px;min-width:0}
+.today-title-row h1{font-size:clamp(28px,3vw,40px);white-space:nowrap}
+.today-title-row span{font-size:13px;color:var(--muted);white-space:nowrap}
+.today-workspace{height:calc(100dvh - 114px);display:grid;grid-template-columns:minmax(390px,1.35fr) minmax(300px,.9fr) minmax(260px,.75fr);gap:12px;min-height:0}
+.dashboard-panel{min-height:0;overflow:hidden}
+.timeline-panel{display:flex;flex-direction:column;padding:0}
+.timeline-panel>.panel-head{padding:16px 18px 12px}
+.timeline{padding:8px 14px 16px;overflow-y:auto;min-height:0}
+.todo-panel{display:flex;flex-direction:column;padding-bottom:8px}
+.todo-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 14px 10px}
+.todo-tabs button{border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--muted);padding:7px 5px;font-weight:800;cursor:pointer}
+.todo-tabs button.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.todo-list{overflow-y:auto;min-height:0;flex:1;padding:0 10px 8px}
+.todo-empty{padding:26px 12px;text-align:center;color:var(--muted);font-size:13px}
+.todo-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;gap:6px;align-items:center;padding:11px 6px;border-top:1px solid var(--line)}
+.todo-item:first-child{border-top:0}
+.todo-item.done{opacity:.55}
+.todo-copy{min-width:0}
+.todo-copy strong,.todo-copy small{display:block}
+.todo-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.todo-copy small{margin-top:3px;color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.todo-swipe-hint{text-align:center;color:var(--muted);font-size:10px;padding:3px 8px 0}
+.today-side-stack{display:grid;grid-template-rows:minmax(160px,1fr) minmax(190px,1.15fr) auto;gap:12px;min-height:0}
+.habit-panel,.daily-event-panel{overflow:hidden}
+.compact-scroll{overflow-y:auto;max-height:100%}
+.today-side-stack .daily-event-panel{overflow-y:auto}
+.today-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}
+.today-mini-grid .supply-quick,.today-mini-grid .brief-card{padding:14px;min-height:0}
+.today-mini-grid h2{font-size:18px}
+.today-mini-grid .primary-btn{min-height:36px;margin-top:9px}
+
+.timeline-cluster{display:grid;grid-template-columns:50px 12px minmax(0,1fr);position:relative;margin-bottom:8px}
+.timeline-cluster-time{font-size:12px;font-weight:800;padding-top:12px;color:var(--muted)}
+.timeline-cluster-line{position:relative}
+.timeline-cluster-line::before{content:"";position:absolute;left:5px;top:0;bottom:-14px;width:1px;background:var(--line)}
+.timeline-cluster-line::after{content:"";position:absolute;left:1px;top:16px;width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--surface)}
+.parallel-events{display:grid;grid-template-columns:repeat(var(--lanes),minmax(0,1fr));gap:7px;min-width:0}
+.parallel-events .event-card{margin:0;padding:10px;min-width:0;align-items:flex-start}
+.parallel-events .event-info{min-width:0}
+.parallel-events .event-info strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.parallel-events .event-info small{white-space:normal}
+.parallel-events .edit-btn{padding:4px}
+.gap-slot{margin-left:62px}
+.move-presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+@media(max-width:1200px){
+  .today-workspace{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);grid-template-rows:minmax(0,1fr) 210px}
+  .timeline-panel{grid-row:1/3}
+  .today-side-stack{grid-column:2;grid-row:2;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr;gap:8px}
+  .today-mini-grid{grid-template-columns:1fr;gap:8px;overflow-y:auto}
+  .today-mini-grid .supply-quick,.today-mini-grid .brief-card{padding:10px}
+  .today-mini-grid h2{font-size:15px}
+}
+
+@media(max-width:700px){
+  body:has(#today-view.active){overscroll-behavior:none}
+  .today-dashboard{height:100dvh;padding:10px 8px 76px}
+  .today-topbar{min-height:78px;margin-bottom:8px;align-items:flex-start;gap:6px}
+  .today-title-row{gap:7px}
+  .today-title-row h1{font-size:25px}
+  .today-title-row span{font-size:11px}
+  .today-topbar .top-actions{flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:5px}
+  .today-topbar .date-nav{gap:3px}
+  .today-topbar .ghost-btn,.today-topbar .primary-btn{min-height:32px;padding:6px 8px;font-size:12px}
+  .today-workspace{height:calc(100dvh - 104px);grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1.15fr) minmax(0,.85fr);gap:7px}
+  .timeline-panel{grid-column:1/3;grid-row:1}
+  .todo-panel{grid-column:1;grid-row:2}
+  .today-side-stack{grid-column:2;grid-row:2;display:block;overflow-y:auto}
+  .today-side-stack>.card{margin-bottom:7px;padding:10px}
+  .today-mini-grid{display:block;overflow:visible}
+  .today-mini-grid>.card{margin-bottom:7px}
+  .timeline-panel>.panel-head{padding:10px 11px 6px}
+  .timeline{padding:4px 7px 10px}
+  .timeline-cluster{grid-template-columns:38px 10px minmax(0,1fr);margin-bottom:6px}
+  .timeline-cluster-time{font-size:10px;padding-top:9px}
+  .timeline-cluster-line::before{left:4px}
+  .timeline-cluster-line::after{left:0;top:12px}
+  .parallel-events{gap:4px}
+  .parallel-events .event-card{padding:7px 6px;border-radius:9px}
+  .parallel-events .event-card input[type="checkbox"]{width:16px;height:16px}
+  .parallel-events .event-info strong{font-size:12px}
+  .parallel-events .event-info small{font-size:9px}
+  .parallel-events .edit-btn{font-size:11px}
+  .gap-slot{margin-left:48px;padding:7px;font-size:10px}
+  .todo-panel .panel-head{padding:10px 10px 7px}
+  .todo-panel .panel-head h2{font-size:16px}
+  .todo-tabs{padding:0 7px 5px;gap:3px}
+  .todo-tabs button{padding:5px 2px;font-size:11px}
+  .todo-list{padding:0 5px 5px}
+  .todo-item{grid-template-columns:auto minmax(0,1fr) auto;padding:8px 3px;gap:4px}
+  .todo-item .icon-btn[data-edit-action],.todo-item .icon-btn[data-schedule-action]{display:none}
+  .todo-copy strong{font-size:12px}
+  .todo-copy small{font-size:9px}
+  .todo-swipe-hint{font-size:9px}
+  .today-side-stack .panel-head h2,.today-mini-grid h2{font-size:14px}
+  .today-side-stack p,.today-side-stack small,.today-side-stack .muted{font-size:10px}
+}

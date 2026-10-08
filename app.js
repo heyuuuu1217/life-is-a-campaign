@@ -40,6 +40,8 @@ let selected=new Date();selected.setHours(0,0,0,0);
 let supplyWeek=weekStart(selected);
 let currentCaseId=null;
 let editingNpcId=null;
+let todoPeriod='day';
+let todoTouchStartX=null;
 
 const toast=msg=>{const el=$('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1900)};
 function persist(){data.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(data));render();setLocalStatus()}
@@ -85,26 +87,22 @@ function slotSuggestions(dateKey,duration,excludeActionId=''){
 }
 function scheduleConflict(dateKey,time,duration,excludeActionId=''){
   const start=minute(time),end=start+duration,date=new Date(`${dateKey}T00:00:00`);if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)||Number.isNaN(date.getTime())||keyOf(date)!==dateKey||!Number.isFinite(start)||!Number.isInteger(duration)||duration<5||duration>480||end>1440)return'请检查日期、时间和时长';
-  const conflict=busyIntervals(dateKey,excludeActionId).find(busy=>start<busy.end&&end>busy.start);return conflict?`与「${conflict.title}」的时间重叠`:''
+  const courses=data.courses.filter(c=>courseOccurs(c,date)).map(c=>({start:minute(c.start),end:minute(c.end),title:c.name}));
+  const conflict=courses.find(busy=>start<busy.end&&end>busy.start);return conflict?`与课程「${conflict.title}」的时间重叠；行动之间可以重叠`:''
 }
 function scheduleAction(actionId,dateKey,time,duration){const action=data.actions.find(a=>a.id===actionId);if(!action)return false;const problem=scheduleConflict(dateKey,time,duration,actionId);if(problem){toast(problem);return false}action.date=dateKey;action.time=time;action.duration=duration;persist();toast('行动已放进时间轴');return true}
 function durationLabel(minutes){return minutes>=60?`${Math.floor(minutes/60)}小时${minutes%60?`${minutes%60}分钟`:''}`:`${minutes}分钟`}
 
+function overlapGroups(events){const groups=[];for(const event of events){const last=groups.at(-1);if(last&&event.start<last.end){last.events.push(event);last.end=Math.max(last.end,event.end)}else groups.push({start:event.start,end:event.end,events:[event]})}return groups}
+function todoRange(){const start=new Date(selected),end=new Date(selected);if(todoPeriod==='week'){const monday=weekStart(selected);start.setTime(monday.getTime());end.setTime(monday.getTime());end.setDate(end.getDate()+6)}else if(todoPeriod==='month'){start.setDate(1);end.setMonth(end.getMonth()+1,0)}return{start:keyOf(start),end:keyOf(end)}}
+function setTodoPeriod(period){todoPeriod=period;document.querySelectorAll('[data-todo-period]').forEach(button=>button.classList.toggle('active',button.dataset.todoPeriod===period));renderTimeline()}
+function renderTodo(){const range=todoRange(),labels={day:'本日待办',week:'本周待办',month:'本月待办'},actions=data.actions.filter(a=>a.date>=range.start&&a.date<=range.end).sort((a,b)=>Number(a.completed)-Number(b.completed)||a.date.localeCompare(b.date)||(a.time||'99:99').localeCompare(b.time||'99:99'));$('todo-title').textContent=labels[todoPeriod];$('pending-count').textContent=actions.filter(a=>!a.completed).length;$('pending-list').innerHTML=actions.map(a=>{const related=a.caseId?caseById(a.caseId):null;return`<div class="todo-item ${a.completed?'done':''}" draggable="true" data-drag-action="${a.id}"><button class="check ${a.completed?'done':''}" data-complete="${a.id}" aria-label="切换完成状态">${a.completed?'✓':''}</button><div class="todo-copy"><strong>${esc(a.title)}</strong><small>${esc(a.date)}${a.time?` · ${esc(a.time)}`:' · 待安排'} · ${a.duration} 分钟${related?` · 《${esc(related.title)}》`:''}</small></div>${!a.time?`<button class="edit-btn" data-schedule-action="${a.id}">安排</button>`:''}${!a.completed?`<button class="edit-btn" data-move-action="${a.id}">迁移</button>`:''}<button class="edit-btn" data-edit-action="${a.id}">编辑</button></div>`}).join('')||'<div class="empty compact-empty">这个周期还没有行动。</div>'}
+
 function renderTimeline(){
-  const events=todayEvents();let html='',latestEnd=420;
+  const events=todayEvents(),groups=overlapGroups(events);let html='',latestEnd=420;
   const addGap=(start,end)=>{if(end-start<15)return;html+=`<div class="gap-slot" data-drop-start="${timeOf(start)}"><span>${timeOf(start)}–${timeOf(end)} · 空闲 ${durationLabel(end-start)}</span><button type="button" data-add-at="${timeOf(start)}" aria-label="在 ${timeOf(start)} 添加行动">＋</button></div>`};
-  events.forEach(e=>{
-    if(e.start>latestEnd)addGap(latestEnd,Math.min(e.start,1380));
-    latestEnd=Math.max(latestEnd,e.end);
-    const related=e.kind==='action'&&e.caseId?caseById(e.caseId):null;
-    const meta=e.kind==='course'?`${esc(e.meta||'未设置地点')} · ${timeOf(e.end)}`:`${'★'.repeat(e.difficulty)}${'☆'.repeat(5-e.difficulty)} · ${e.duration} 分钟 · ${timeOf(e.end)}${related?` · 《${esc(related.title)}》`:''}`;
-    html+=`<div class="timeline-item ${e.kind}"><div class="timeline-time">${timeOf(e.start)}</div><div class="track"></div><div class="event-card ${e.completed?'done':''}" ${e.kind==='action'?`draggable="true" data-drag-action="${e.id}"`:''}>${e.kind==='action'?`<button class="check ${e.completed?'done':''}" data-complete="${e.id}" aria-label="标记完成">${e.completed?'✓':''}</button>`:'<span class="course-symbol">◆</span>'}<div class="event-info"><strong>${esc(e.title)}</strong><small>${meta}</small></div>${e.kind==='action'?`<button class="edit-btn" data-schedule-action="${e.id}">改时间</button><button class="edit-btn" data-edit-action="${e.id}">编辑</button><button class="delete-btn" data-delete-action="${e.id}" aria-label="删除行动">×</button>`:''}</div></div>`
-  });
-  addGap(latestEnd,1380);
-  $('timeline').innerHTML=(events.length?'':'<div class="empty compact-empty"><b>时间轴还是空的</b>可以把行动安排进下方空闲时段。</div>')+html;
-  const pending=data.actions.filter(a=>a.date===keyOf(selected)&&!a.time);
-  $('pending-count').textContent=pending.length;
-  $('pending-list').innerHTML=pending.map(a=>`<div class="pending-item" draggable="true" data-drag-action="${a.id}"><button class="check ${a.completed?'done':''}" data-complete="${a.id}">${a.completed?'✓':''}</button><div><strong>${esc(a.title)}</strong><small>${a.duration} 分钟 · ${'★'.repeat(a.difficulty)}${a.caseId&&caseById(a.caseId)?` · 《${esc(caseById(a.caseId).title)}》`:''}</small></div><button class="edit-btn" data-schedule-action="${a.id}">安排</button><button class="edit-btn" data-edit-action="${a.id}">编辑</button><button class="delete-btn" data-delete-action="${a.id}">×</button></div>`).join('')||'<div class="empty compact-empty">没有待安排的行动。可把时间轴上的行动拖回这里。</div>';
+  groups.forEach(group=>{if(group.start>latestEnd)addGap(latestEnd,Math.min(group.start,1380));latestEnd=Math.max(latestEnd,group.end);const cards=group.events.map(e=>{const related=e.kind==='action'&&e.caseId?caseById(e.caseId):null,meta=e.kind==='course'?`${esc(e.meta||'未设置地点')} · ${timeOf(e.start)}–${timeOf(e.end)}`:`${timeOf(e.start)}–${timeOf(e.end)} · ${'★'.repeat(e.difficulty)}${related?` · 《${esc(related.title)}》`:''}`;return`<div class="event-card ${e.kind} ${e.completed?'done':''}" ${e.kind==='action'?`draggable="true" data-drag-action="${e.id}"`:''}>${e.kind==='action'?`<button class="check ${e.completed?'done':''}" data-complete="${e.id}" aria-label="标记完成">${e.completed?'✓':''}</button>`:'<span class="course-symbol">◆</span>'}<div class="event-info"><strong>${esc(e.title)}</strong><small>${meta}</small></div>${e.kind==='action'?`<button class="edit-btn" data-schedule-action="${e.id}">时间</button><button class="edit-btn" data-edit-action="${e.id}">编辑</button>`:''}</div>`}).join('');html+=`<section class="timeline-cluster"><div class="timeline-cluster-time">${timeOf(group.start)}</div><div class="timeline-cluster-line"></div><div class="parallel-events" style="--lanes:${group.events.length}">${cards}</div></section>`});
+  addGap(latestEnd,1380);$('timeline').innerHTML=(events.length?'':'<div class="empty compact-empty"><b>时间轴还是空的</b>从待办安排时间，或点击空闲时段。</div>')+html;renderTodo();
   const dayActions=data.actions.filter(a=>a.date===keyOf(selected)),done=dayActions.filter(a=>a.completed).length;
   $('complete-rate').textContent=`${done} / ${dayActions.length}`;$('progress-bar').style.width=`${dayActions.length?done/dayActions.length*100:0}%`;
   $('brief-copy').textContent=dayActions.length?(done===dayActions.length?'今日行动已经全部完成。':`还有 ${dayActions.length-done} 项行动等待推进。`):'今天的调查尚未开始。'
@@ -197,8 +195,9 @@ function render(){
 
 function showDialog(id){$(id).showModal()}
 function openAction(action=null,caseId=''){
-  $('action-form').reset();$('action-id').value=action?.id||'';$('action-dialog-title').textContent=action?'编辑行动':'新建行动';$('action-title').value=action?.title||'';$('action-date').value=action?.date||keyOf(selected);$('action-time').value=action?.time||'';$('action-duration').value=String(action?.duration||30);$('action-difficulty').value=String(action?.difficulty||3);$('action-notes').value=action?.notes||'';refreshSelects();$('action-case').value=action?.caseId||caseId||'';$('action-skill').value=action?.skillId||'';showDialog('action-dialog')
+  $('action-form').reset();$('action-id').value=action?.id||'';$('action-dialog-title').textContent=action?'编辑行动':'新建行动';$('action-title').value=action?.title||'';$('action-date').value=action?.date||keyOf(selected);$('action-time').value=action?.time||'';$('action-duration').value=String(action?.duration||30);$('action-difficulty').value=String(action?.difficulty||3);refreshSelects();$('action-case').value=action?.caseId||caseId||'';$('action-skill').value=action?.skillId||'';showDialog('action-dialog')
 }
+function openMoveAction(action){if(!action)return;$('move-action-form').reset();$('move-action-id').value=action.id;$('move-action-name').textContent=action.title;$('move-action-date').value=action.date||keyOf(selected);showDialog('move-action-dialog')}
 function updateScheduleConflict(){const problem=scheduleConflict($('schedule-date').value,$('schedule-time').value,Number($('schedule-duration').value),$('schedule-action-id').value);$('schedule-conflict').textContent=problem||'这个时段可以安排。';$('schedule-conflict').classList.toggle('has-conflict',!!problem)}
 function renderScheduleSuggestions(autofill=false){const date=$('schedule-date').value,duration=Number($('schedule-duration').value),slots=Number.isInteger(duration)&&duration>=5&&duration<=480?slotSuggestions(date,duration,$('schedule-action-id').value):[];$('schedule-suggestions').innerHTML=slots.map(start=>`<button type="button" class="ghost-btn" data-schedule-slot="${timeOf(start)}">${timeOf(start)}–${timeOf(start+duration)}</button>`).join('')||'<span class="muted">当天没有合适的建议时段，可改日期或手动填写。</span>';if(autofill&&slots.length)$('schedule-time').value=timeOf(slots[0]);updateScheduleConflict()}
 function openSchedule(action){if(!action)return;$('schedule-form').reset();$('schedule-action-id').value=action.id;$('schedule-title').textContent=action.time?'调整时间':'安排行动';$('schedule-action-name').textContent=action.title;$('schedule-date').value=action.date||keyOf(selected);$('schedule-duration').value=Number(action.duration)||30;$('schedule-time').value=action.time||'';renderScheduleSuggestions(!action.time);showDialog('schedule-dialog')}
@@ -216,6 +215,9 @@ function openCase(id){currentCaseId=id;renderCaseDetail();showDialog('case-detai
 document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.tab===btn.dataset.tab));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));$(`${btn.dataset.tab}-view`).classList.add('active');window.scrollTo(0,0)}));
 document.querySelectorAll('[data-archive-section]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-archive-section]').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('.archive-section').forEach(x=>x.classList.remove('active'));$(`${btn.dataset.archiveSection}-section`).classList.add('active')}));
 document.querySelectorAll('dialog').forEach(dialog=>{dialog.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>dialog.close()));dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()})});
+document.querySelectorAll('[data-todo-period]').forEach(button=>button.addEventListener('click',()=>setTodoPeriod(button.dataset.todoPeriod)));
+$('todo-panel').addEventListener('touchstart',event=>{todoTouchStartX=event.changedTouches[0]?.clientX??null},{passive:true});
+$('todo-panel').addEventListener('touchend',event=>{if(todoTouchStartX===null)return;const delta=(event.changedTouches[0]?.clientX??todoTouchStartX)-todoTouchStartX;todoTouchStartX=null;if(Math.abs(delta)<45)return;const periods=['day','week','month'],index=periods.indexOf(todoPeriod),next=delta<0?Math.min(2,index+1):Math.max(0,index-1);if(next!==index)setTodoPeriod(periods[next])},{passive:true});
 
 $('prev-day').onclick=()=>{selected.setDate(selected.getDate()-1);render()};
 $('next-day').onclick=()=>{selected.setDate(selected.getDate()+1);render()};
@@ -225,6 +227,7 @@ $('schedule-date').onchange=()=>renderScheduleSuggestions(true);
 $('schedule-duration').onchange=()=>renderScheduleSuggestions(false);
 $('schedule-time').oninput=updateScheduleConflict;
 $('schedule-form').onsubmit=e=>{e.preventDefault();if(scheduleAction($('schedule-action-id').value,$('schedule-date').value,$('schedule-time').value,Number($('schedule-duration').value)))$('schedule-dialog').close()};
+$('move-action-form').onsubmit=e=>{e.preventDefault();const action=data.actions.find(a=>a.id===$('move-action-id').value),date=$('move-action-date').value;if(!action||!date)return;action.date=date;action.time='';action.completed=false;action.completedAt=null;$('move-action-dialog').close();persist();toast('未完成行动已重新安排')};
 $('add-course').onclick=()=>openCourse();
 $('course-repeat').onchange=e=>$('course-weeks-wrap').hidden=e.target.value!=='custom';
 $('add-habit').onclick=()=>{$('habit-form').reset();$('habit-target').value=1;$('habit-weekdays-wrap').hidden=true;showDialog('habit-dialog')};
@@ -248,7 +251,7 @@ $('daily-event-form').onsubmit=e=>{e.preventDefault();const id=$('daily-event-id
 
 $('action-form').onsubmit=e=>{
   e.preventDefault();const id=$('action-id').value,existing=data.actions.find(a=>a.id===id),oldSkillId=existing?.skillId;
-  const action={id:id||uid(),title:$('action-title').value.trim(),date:$('action-date').value,time:$('action-time').value,duration:Number($('action-duration').value),difficulty:Number($('action-difficulty').value),notes:$('action-notes').value.trim(),caseId:$('action-case').value||null,skillId:$('action-skill').value||null,completed:existing?.completed||false,completedAt:existing?.completedAt||null,rewardXp:existing?.rewardXp||null,rewardCoins:existing?.rewardCoins||null,createdAt:existing?.createdAt||new Date().toISOString()};
+  const action={id:id||uid(),title:$('action-title').value.trim(),date:$('action-date').value,time:$('action-time').value,duration:Number($('action-duration').value),difficulty:Number($('action-difficulty').value),notes:existing?.notes||'',caseId:$('action-case').value||null,skillId:$('action-skill').value||null,completed:existing?.completed||false,completedAt:existing?.completedAt||null,rewardXp:existing?.rewardXp||null,rewardCoins:existing?.rewardCoins||null,createdAt:existing?.createdAt||new Date().toISOString()};
   if(action.time&&(!existing||existing.date!==action.date||existing.time!==action.time||Number(existing.duration)!==action.duration)){const problem=scheduleConflict(action.date,action.time,action.duration,action.id);if(problem){toast(problem);return}}
   if(existing?.completed&&oldSkillId!==action.skillId){const earned=Number(existing.rewardXp||actionReward(existing).xp),oldSkill=skillById(oldSkillId),newSkill=skillById(action.skillId);if(oldSkill)oldSkill.xp=Math.max(0,Number(oldSkill.xp||0)-earned);if(newSkill)newSkill.xp=Number(newSkill.xp||0)+earned}
   if(existing)Object.assign(existing,action);else data.actions.push(action);$('action-dialog').close();persist();toast(existing?'行动已更新':'行动已加入调查日程')
@@ -281,6 +284,8 @@ $('import-data').onchange=async e=>{const file=e.target.files[0];if(!file)return
 
 document.body.addEventListener('click',e=>{
   const target=e.target.closest('button');if(!target)return;
+  if(target.dataset.moveAction){openMoveAction(data.actions.find(a=>a.id===target.dataset.moveAction));return}
+  if(target.dataset.movePreset){const base=new Date(selected);if(target.dataset.movePreset==='tomorrow')base.setDate(base.getDate()+1);if(target.dataset.movePreset==='next-week'){const day=base.getDay()||7;base.setDate(base.getDate()+(8-day))}$('move-action-date').value=keyOf(base);return}
   if(target.dataset.scheduleAction){openSchedule(data.actions.find(a=>a.id===target.dataset.scheduleAction));return}
   if(target.dataset.scheduleSlot){$('schedule-time').value=target.dataset.scheduleSlot;updateScheduleConflict();return}
   if(target.dataset.addAt){openAction();$('action-time').value=target.dataset.addAt;return}
@@ -319,8 +324,8 @@ document.body.addEventListener('click',e=>{
 });
 
 document.body.addEventListener('dragstart',e=>{const item=e.target.closest('[data-drag-action]');if(!item||!e.dataTransfer)return;e.dataTransfer.setData('text/plain',item.dataset.dragAction);e.dataTransfer.effectAllowed='move'});
-document.body.addEventListener('dragover',e=>{if(e.target.closest('.gap-slot, #pending-list'))e.preventDefault()});
-document.body.addEventListener('drop',e=>{const zone=e.target.closest('.gap-slot, #pending-list');if(!zone||!e.dataTransfer)return;e.preventDefault();const id=e.dataTransfer.getData('text/plain'),action=data.actions.find(a=>a.id===id);if(!action)return;if(zone.classList.contains('gap-slot'))scheduleAction(id,keyOf(selected),zone.dataset.dropStart,Number(action.duration));else if(action.time){action.time='';action.date=keyOf(selected);persist();toast('行动已移回待安排')} });
+document.body.addEventListener('dragover',e=>{if(e.target.closest('.gap-slot'))e.preventDefault()});
+document.body.addEventListener('drop',e=>{const zone=e.target.closest('.gap-slot');if(!zone||!e.dataTransfer)return;e.preventDefault();const id=e.dataTransfer.getData('text/plain'),action=data.actions.find(a=>a.id===id);if(!action)return;scheduleAction(id,keyOf(selected),zone.dataset.dropStart,Number(action.duration))});
 
 window.addEventListener('online',setLocalStatus);
 window.addEventListener('offline',setLocalStatus);
