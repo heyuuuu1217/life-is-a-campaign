@@ -30,23 +30,29 @@
           <div><p class="eyebrow">TODAY / 调查日程</p><div class="today-title-row"><h1 id="date-title">今天</h1><span id="week-label">第 1 周</span></div></div>
           <div class="top-actions"><div class="date-controls"><button class="icon-btn" id="prev-day" aria-label="前一天">‹</button><button class="ghost-btn" id="go-today">今天</button><button class="icon-btn" id="next-day" aria-label="后一天">›</button></div><button class="primary-btn" id="add-action">＋ 新建行动</button><button class="settle-btn" id="settle-day">🏕 结算</button></div>
         </header>
-        <div class="today-workspace">
-          <article class="panel timeline-panel dashboard-panel">
+        <nav class="today-section-tabs" aria-label="今日页面"><button class="active" data-today-section="timeline">时间轴</button><button data-today-section="planning">待办与习惯</button></nav>
+        <section class="today-section active" id="today-timeline-section">
+          <article class="panel timeline-panel">
             <div class="panel-head compact"><div><p class="section-code">TIME LINE</p><h2>时间轴</h2><p class="muted timeline-hint">行动可以重叠；课程也会自动显示。</p></div></div>
             <div id="timeline" class="timeline"></div>
           </article>
-          <article class="panel todo-panel dashboard-panel" id="todo-panel">
-            <div class="panel-head compact todo-head"><div><p class="section-code">TO-DO</p><h2 id="todo-title">本日待办</h2></div><span class="count" id="pending-count">0</span></div>
-            <nav class="todo-tabs" aria-label="待办周期"><button class="active" data-todo-period="day">本日</button><button data-todo-period="week">本周</button><button data-todo-period="month">本月</button></nav>
-            <div id="pending-list" class="todo-list"></div>
-            <p class="todo-swipe-hint">左右滑动切换周期</p>
-          </article>
-          <aside class="today-side-stack">
-            <article class="panel habit-panel dashboard-panel"><div class="panel-head compact"><div><p class="section-code">ROUTINE</p><h2>今日习惯</h2></div><button class="mini-add" id="add-habit" aria-label="添加习惯">＋</button></div><div id="habit-list" class="compact-scroll"></div></article>
-            <article class="panel daily-event-panel dashboard-panel"><div class="daily-event-head"><div><p class="section-code">DAILY EVENT</p><h2>每日事件</h2></div><span aria-hidden="true">⚄</span></div><div id="daily-event-content"></div><details class="event-table"><summary>事件表</summary><div id="event-table-list"></div><button class="ghost-btn" id="add-daily-event">＋ 添加事件</button></details></article>
-            <div class="today-mini-grid"><article class="panel supply-quick"><p class="section-code">WEEKLY SUPPLY</p><h2>本周补给</h2><p id="supply-quick-copy" class="muted">记录食物覆盖。</p><button class="primary-btn" id="record-supply-today">＋ 记录</button></article><article class="brief-card"><p class="section-code">DAILY BRIEF</p><div class="brief-row"><span>已完成</span><strong id="complete-rate">0 / 0</strong></div><div class="progress"><i id="progress-bar"></i></div><p class="muted" id="brief-copy">尚未开始。</p></article></div>
-          </aside>
-        </div>
+        </section>
+        <section class="today-section" id="today-planning-section">
+          <div class="planning-main-grid">
+            <article class="panel todo-panel" id="todo-panel">
+              <div class="panel-head compact todo-head"><div><p class="section-code">TO-DO</p><h2 id="todo-title">本日待办</h2></div><span class="count" id="pending-count">0</span></div>
+              <nav class="todo-tabs" aria-label="待办周期"><button class="active" data-todo-period="day">本日</button><button data-todo-period="week">本周</button><button data-todo-period="month">本月</button></nav>
+              <div id="pending-list" class="todo-list"></div>
+              <p class="todo-swipe-hint">左右滑动切换周期</p>
+            </article>
+            <article class="panel habit-panel"><div class="panel-head compact"><div><p class="section-code">ROUTINE</p><h2>今日习惯</h2></div><button class="mini-add" id="add-habit" aria-label="添加习惯">＋</button></div><div id="habit-list"></div></article>
+          </div>
+          <div class="planning-extra-grid">
+            <article class="panel daily-event-panel"><div class="daily-event-head"><div><p class="section-code">DAILY EVENT</p><h2>每日事件</h2></div><span aria-hidden="true">⚄</span></div><div id="daily-event-content"></div><details class="event-table"><summary>事件表</summary><div id="event-table-list"></div><button class="ghost-btn" id="add-daily-event">＋ 添加事件</button></details></article>
+            <article class="panel supply-quick"><p class="section-code">WEEKLY SUPPLY</p><h2>本周补给</h2><p id="supply-quick-copy" class="muted">记录食物覆盖。</p><button class="primary-btn" id="record-supply-today">＋ 记录</button></article>
+            <article class="brief-card"><p class="section-code">DAILY BRIEF</p><div class="brief-row"><span>已完成</span><strong id="complete-rate">0 / 0</strong></div><div class="progress"><i id="progress-bar"></i></div><p class="muted" id="brief-copy">尚未开始。</p></article>
+          </div>
+        </section>
       </section>
 
       <section class="view" id="archive-view">

@@ -151,3 +151,69 @@ main:has(#today-view.active){height:100dvh;overflow:hidden}
   .today-side-stack .panel-head h2,.today-mini-grid h2{font-size:14px}
   .today-side-stack p,.today-side-stack small,.today-side-stack .muted{font-size:10px}
 }
+
+/* Today workspace V4: timeline and planning are separate, normally scrolling pages. */
+body:has(#today-view.active){overflow:auto}
+main:has(#today-view.active){height:auto;overflow:visible}
+.today-dashboard{height:auto;max-width:1540px;padding:38px clamp(22px,4vw,64px) 90px;overflow:visible}
+.today-topbar{min-height:0;margin-bottom:18px;align-items:flex-end}
+.today-section-tabs{display:flex;gap:7px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.today-section-tabs button{border:0;border-bottom:3px solid transparent;background:transparent;padding:12px 20px;color:var(--muted);font-weight:850}
+.today-section-tabs button.active{border-bottom-color:var(--rust);color:var(--ink)}
+.today-section{display:none}
+.today-section.active{display:block}
+.today-section .timeline-panel{display:block;padding:0;overflow:visible}
+.today-section .timeline{min-height:520px;padding:10px 18px 24px;overflow:visible}
+.planning-main-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:18px;align-items:start}
+.planning-extra-grid{display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(220px,.8fr) minmax(220px,.8fr);gap:18px;align-items:start;margin-top:18px}
+.todo-panel{display:block;padding-bottom:8px;overflow:visible}
+.todo-list{overflow:visible;min-height:180px;padding:0 14px 8px}
+.habit-panel,.daily-event-panel{overflow:visible}
+.habit-panel #habit-list{min-height:120px}
+.todo-swipe-hint{font-size:11px;padding:8px}
+
+/* The action editor is deliberately a compact, single-screen form. */
+#action-dialog{max-height:calc(100dvh - 20px);overflow:hidden}
+#action-dialog form{max-height:calc(100dvh - 20px);overflow:auto;padding:18px 22px}
+#action-dialog .dialog-head{margin-bottom:12px}
+#action-dialog .dialog-head h2{font-size:23px}
+#action-dialog .form-row{margin:9px 0;gap:10px}
+#action-dialog input,#action-dialog select{min-height:38px;padding:8px 10px;margin-top:4px}
+#action-dialog .dialog-actions{margin-top:13px}
+
+@media(max-width:900px){
+  .today-dashboard{padding:42px 18px 105px}
+  .planning-main-grid,.planning-extra-grid{grid-template-columns:1fr}
+  .today-section .timeline{min-height:420px}
+}
+
+@media(max-width:560px){
+  .today-dashboard{height:auto;padding:42px 12px 94px}
+  .today-topbar{display:block;min-height:0;margin-bottom:12px}
+  .today-title-row h1{font-size:29px}
+  .today-topbar .top-actions{margin-top:14px;display:grid;grid-template-columns:1fr auto;align-items:stretch}
+  .today-topbar .date-controls{grid-column:1/-1;margin:0;display:grid;grid-template-columns:42px 1fr 42px}
+  .today-topbar .primary-btn,.today-topbar .settle-btn{min-height:40px;padding:6px 10px;font-size:13px}
+  .today-section-tabs{position:sticky;top:0;z-index:12;background:var(--paper);padding-top:4px}
+  .today-section-tabs button{flex:1;padding:10px 6px}
+  .today-section .timeline-panel>.panel-head{padding:15px}
+  .today-section .timeline{min-height:500px;padding:8px 10px 20px}
+  .planning-main-grid,.planning-extra-grid{gap:12px}
+  .planning-extra-grid{margin-top:12px}
+  .planning-main-grid .todo-panel{grid-column:auto;grid-row:auto}
+  .todo-panel .panel-head{padding:15px}
+  .todo-tabs{padding:0 12px 8px}
+  .todo-list{padding:0 10px 8px}
+  .todo-item{display:flex;flex-wrap:wrap;padding:12px 4px;gap:5px}
+  .todo-item .todo-copy{flex:1;min-width:calc(100% - 38px)}
+  .todo-item .edit-btn{border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+  .todo-copy strong{font-size:14px}
+  .todo-copy small{font-size:11px;white-space:normal}
+  .habit-panel .panel-head{padding:15px}
+  #action-dialog{width:calc(100vw - 16px)}
+  #action-dialog form{padding:14px}
+  #action-dialog .form-row{grid-template-columns:1fr 1fr;gap:7px;margin:7px 0}
+  #action-dialog label{font-size:11px}
+  #action-dialog input,#action-dialog select{font-size:16px;min-height:36px;padding:6px 7px}
+  #action-dialog .dialog-actions button{min-height:38px}
+}
