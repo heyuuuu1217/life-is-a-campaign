@@ -42,6 +42,8 @@
             <article class="panel todo-panel" id="todo-panel">
               <div class="panel-head compact todo-head"><div><p class="section-code">TO-DO</p><h2 id="todo-title">本日待办</h2></div><span class="count" id="pending-count">0</span></div>
               <nav class="todo-tabs" aria-label="待办周期"><button class="active" data-todo-period="day">本日</button><button data-todo-period="week">本周</button><button data-todo-period="month">本月</button></nav>
+              <form class="quick-todo-form" id="quick-todo-form"><span aria-hidden="true">＋</span><input id="quick-todo-title" maxlength="80" autocomplete="off" enterkeyhint="enter" aria-label="快速新建待办" placeholder="输入待办，按回车新建"><button type="submit" aria-label="添加待办">↵</button></form>
+              <p class="quick-todo-hint"><span id="quick-todo-date"></span> · 回车后可继续输入</p>
               <div id="pending-list" class="todo-list"></div>
               <p class="todo-swipe-hint">左右滑动切换周期</p>
             </article>

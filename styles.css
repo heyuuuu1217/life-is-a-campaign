@@ -171,6 +171,12 @@ main:has(#today-view.active){height:auto;overflow:visible}
 .habit-panel,.daily-event-panel{overflow:visible}
 .habit-panel #habit-list{min-height:120px}
 .todo-swipe-hint{font-size:11px;padding:8px}
+.quick-todo-form{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin:4px 14px 6px;padding:5px 6px 5px 12px;border:1px solid #a9c8ae;border-radius:10px;background:#f7fbf5;transition:border-color .15s,box-shadow .15s}
+.quick-todo-form:focus-within{border-color:#3f7653;box-shadow:0 0 0 3px #8acb9b33}
+.quick-todo-form>span{color:var(--rust);font-size:22px;font-weight:700}
+.quick-todo-form input{min-height:38px;margin:0;padding:6px 2px;border:0;background:transparent;outline:0;box-shadow:none}
+.quick-todo-form button{width:36px;height:36px;border:0;border-radius:8px;background:#245a3b;color:#fff;font-size:20px;font-weight:800}
+.quick-todo-hint{margin:0 18px 8px;color:var(--muted);font-size:11px}
 
 /* The action editor is deliberately a compact, single-screen form. */
 #action-dialog{max-height:calc(100dvh - 20px);overflow:hidden}
@@ -203,6 +209,8 @@ main:has(#today-view.active){height:auto;overflow:visible}
   .planning-main-grid .todo-panel{grid-column:auto;grid-row:auto}
   .todo-panel .panel-head{padding:15px}
   .todo-tabs{padding:0 12px 8px}
+  .quick-todo-form{margin:2px 12px 5px}
+  .quick-todo-hint{margin:0 15px 7px}
   .todo-list{padding:0 10px 8px}
   .todo-item{display:flex;flex-wrap:wrap;padding:12px 4px;gap:5px}
   .todo-item .todo-copy{flex:1;min-width:calc(100% - 38px)}
