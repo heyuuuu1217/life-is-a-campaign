@@ -184,7 +184,6 @@ $('todo-panel').addEventListener('touchend',event=>{if(todoTouchStartX===null)re
 $('prev-day').onclick=()=>{selected.setDate(selected.getDate()-1);render()};
 $('next-day').onclick=()=>{selected.setDate(selected.getDate()+1);render()};
 $('go-today').onclick=()=>{selected=new Date();selected.setHours(0,0,0,0);render()};
-$('add-action').onclick=()=>openAction();
 $('quick-todo-form').onsubmit=e=>{e.preventDefault();const input=$('quick-todo-title'),title=input.value.trim();if(!title)return;data.actions.push({id:uid(),title,date:keyOf(selected),time:'',duration:30,difficulty:1,notes:'',caseId:null,skillId:null,completed:false,completedAt:null,rewardXp:null,rewardCoins:null,createdAt:new Date().toISOString()});input.value='';persist();requestAnimationFrame(()=>input.focus());toast('待办已添加，可继续输入')};
 $('move-action-form').onsubmit=e=>{e.preventDefault();const action=data.actions.find(a=>a.id===$('move-action-id').value),date=$('move-action-date').value;if(!action||!date)return;action.date=date;action.time='';action.completed=false;action.completedAt=null;$('move-action-dialog').close();persist();toast('未完成行动已重新安排')};
 $('add-course').onclick=()=>openCourse();

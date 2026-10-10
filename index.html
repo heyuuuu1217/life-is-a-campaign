@@ -28,7 +28,7 @@
       <section class="view active today-dashboard" id="today-view">
         <header class="topbar today-topbar">
           <div><p class="eyebrow">TODAY / 调查日程</p><div class="today-title-row"><h1 id="date-title">今天</h1><span id="week-label">第 1 周</span></div></div>
-          <div class="top-actions"><div class="date-controls"><button class="icon-btn" id="prev-day" aria-label="前一天">‹</button><button class="ghost-btn" id="go-today">今天</button><button class="icon-btn" id="next-day" aria-label="后一天">›</button></div><button class="primary-btn" id="add-action">＋ 新建行动</button><button class="settle-btn" id="settle-day">🏕 结算</button></div>
+          <div class="top-actions"><div class="date-controls"><button class="icon-btn" id="prev-day" aria-label="前一天">‹</button><button class="ghost-btn" id="go-today">今天</button><button class="icon-btn" id="next-day" aria-label="后一天">›</button></div><button class="settle-btn" id="settle-day">🏕 结算</button></div>
         </header>
         <a class="uptimer-handoff" href="https://apps.apple.com/cn/app/uptimer/id1625562058" target="_blank" rel="noreferrer"><span>◷</span><div><strong>计时与奖励交给 UpTimer</strong><small>Life Campaign 只保留待办、成长和调查档案</small></div><b>打开 ↗</b></a>
         <section class="today-planning" id="today-planning-section">
@@ -125,6 +125,6 @@
   <dialog id="supply-item-dialog"><form id="supply-item-form"><input type="hidden" id="supply-item-id"><div class="dialog-head"><div><p class="section-code">SUPPLY CATEGORY</p><h2 id="supply-item-title">自定义食物种类</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>名称<input id="supply-item-name" required maxlength="30" placeholder="例如：海藻"></label><div class="form-row"><label>分类<select id="supply-item-group"><option value="vegetable">蔬菜</option><option value="fruit">水果</option><option value="protein">肉类与蛋白质</option><option value="other">其他</option></select></label><label>每周目标次数<input id="supply-item-target" type="number" min="1" max="20" value="1" required></label></div><p class="muted">默认 1 次，即本周吃过就点亮；次数仅用于自己的记录。</p><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存种类</button></div></form></dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js?v=6"></script>
+  <script src="./app.js?v=6.1"></script>
 </body>
 </html>
