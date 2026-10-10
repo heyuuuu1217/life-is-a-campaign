@@ -8,7 +8,7 @@
   <title>Life Campaign</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=6">
 </head>
 <body class="synced">
   <div class="app-shell">
@@ -125,6 +125,6 @@
   <dialog id="supply-item-dialog"><form id="supply-item-form"><input type="hidden" id="supply-item-id"><div class="dialog-head"><div><p class="section-code">SUPPLY CATEGORY</p><h2 id="supply-item-title">自定义食物种类</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>名称<input id="supply-item-name" required maxlength="30" placeholder="例如：海藻"></label><div class="form-row"><label>分类<select id="supply-item-group"><option value="vegetable">蔬菜</option><option value="fruit">水果</option><option value="protein">肉类与蛋白质</option><option value="other">其他</option></select></label><label>每周目标次数<input id="supply-item-target" type="number" min="1" max="20" value="1" required></label></div><p class="muted">默认 1 次，即本周吃过就点亮；次数仅用于自己的记录。</p><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存种类</button></div></form></dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js"></script>
+  <script src="./app.js?v=6"></script>
 </body>
 </html>
