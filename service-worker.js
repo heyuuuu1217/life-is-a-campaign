@@ -1,5 +1,5 @@
-const CACHE='life-campaign-v6-4-simple-todos-20261011';
-const CORE=['./','./index.html','./styles.css?v=6.4','./app.js?v=6.4','./manifest.webmanifest','./favicon.svg'];
+const CACHE='life-campaign-v6-5-todo-date-controls-20261011';
+const CORE=['./','./index.html','./styles.css?v=6.5','./app.js?v=6.5','./manifest.webmanifest','./favicon.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{

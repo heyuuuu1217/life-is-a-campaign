@@ -8,7 +8,7 @@
   <title>Life Campaign</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="stylesheet" href="./styles.css?v=6.4">
+  <link rel="stylesheet" href="./styles.css?v=6.5">
 </head>
 <body class="synced">
   <div class="app-shell">
@@ -26,15 +26,11 @@
 
     <main>
       <section class="view active today-dashboard" id="today-view">
-        <header class="topbar today-topbar">
-          <div><p class="eyebrow">TODAY / 调查日程</p><div class="today-title-row"><h1 id="date-title">今天</h1><span id="week-label">第 1 周</span></div></div>
-          <div class="top-actions"><div class="date-controls"><button class="icon-btn" id="prev-day" aria-label="前一天">‹</button><button class="ghost-btn" id="go-today">今天</button><button class="icon-btn" id="next-day" aria-label="后一天">›</button></div><button class="settle-btn" id="settle-day">🏕 结算</button></div>
-        </header>
         <a class="uptimer-handoff" href="https://apps.apple.com/cn/app/uptimer/id1625562058" target="_blank" rel="noreferrer"><span>◷</span><div><strong>计时与奖励交给 UpTimer</strong><small>Life Campaign 只保留待办、成长和调查档案</small></div><b>打开 ↗</b></a>
         <section class="today-planning" id="today-planning-section">
           <div class="planning-main-grid">
             <article class="panel todo-panel" id="todo-panel">
-              <div class="jot-heading"><div><p class="section-code">CAPTURE / 待办</p><h2 id="todo-title">今天</h2><p id="todo-period-copy">只看今天真正要推进的事。</p></div><span class="count" id="pending-count">0</span></div>
+              <div class="jot-heading"><div class="todo-heading-copy"><p class="section-code">CAPTURE / 待办</p><div class="todo-title-controls"><h2 id="todo-title">今日</h2><div class="date-controls compact-date-controls"><button class="icon-btn" id="prev-day" aria-label="前一天">‹</button><button class="ghost-btn" id="go-today">今日</button><button class="icon-btn" id="next-day" aria-label="后一天">›</button></div></div><p id="todo-period-copy">今天的课程和真正要推进的事。</p></div><div class="todo-heading-actions"><span class="count" id="pending-count">0</span><button class="settle-btn" id="settle-day">🏕 结算</button></div></div>
               <nav class="todo-tabs" aria-label="待办周期"><button class="active" data-todo-period="day">今天</button><button data-todo-period="week">本周</button><button data-todo-period="month">本月</button></nav>
               <form class="quick-todo-form" id="quick-todo-form"><span aria-hidden="true">＋</span><input id="quick-todo-title" maxlength="80" autocomplete="off" enterkeyhint="enter" aria-label="快速新建待办" placeholder="写下要做的事，回车继续"><button type="submit" aria-label="添加待办">↵</button></form>
               <p class="quick-todo-hint"><span id="quick-todo-date"></span> · 先记下来，细节可以之后再补</p>
@@ -123,6 +119,6 @@
   <dialog id="supply-item-dialog"><form id="supply-item-form"><input type="hidden" id="supply-item-id"><div class="dialog-head"><div><p class="section-code">SUPPLY CATEGORY</p><h2 id="supply-item-title">自定义食物种类</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>名称<input id="supply-item-name" required maxlength="30" placeholder="例如：海藻"></label><div class="form-row"><label>分类<select id="supply-item-group"><option value="vegetable">蔬菜</option><option value="fruit">水果</option><option value="protein">肉类与蛋白质</option><option value="other">其他</option></select></label><label>每周目标次数<input id="supply-item-target" type="number" min="1" max="20" value="1" required></label></div><p class="muted">默认 1 次，即本周吃过就点亮；次数仅用于自己的记录。</p><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存种类</button></div></form></dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js?v=6.4"></script>
+  <script src="./app.js?v=6.5"></script>
 </body>
 </html>

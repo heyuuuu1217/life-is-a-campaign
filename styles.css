@@ -232,6 +232,7 @@ main:has(#today-view.active){height:auto;overflow:visible}
 .uptimer-handoff>div{min-width:0;flex:1}.uptimer-handoff strong,.uptimer-handoff small{display:block}.uptimer-handoff small{margin-top:3px;color:#587161}.uptimer-handoff>b{font-size:13px;color:#2f6f49}
 .jot-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 24px 16px}
 .jot-heading h2{margin:0;font:700 30px/1.1 Georgia,"Microsoft YaHei",serif}.jot-heading p:last-child{margin:8px 0 0;color:var(--muted);font-size:13px}.jot-heading .count{margin-top:3px;background:#2f6f49}
+.todo-heading-copy{min-width:0;flex:1}.todo-title-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.todo-title-controls .date-controls{gap:5px}.todo-title-controls .icon-btn{width:34px;min-width:34px;min-height:34px;font-size:20px}.todo-title-controls .ghost-btn{min-height:34px;padding:0 11px;font-size:12px}.todo-heading-actions{display:flex;align-items:center;gap:10px}.todo-heading-actions .settle-btn{min-height:36px;padding:0 12px;white-space:nowrap}
 .todo-tabs{display:flex;gap:22px;margin:0 24px 12px;padding:0;border-bottom:1px solid var(--line)}
 .todo-tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;padding:9px 1px 10px;color:var(--muted)}
 .todo-tabs button.active{border-color:#2f6f49;background:transparent;color:#204e34}
@@ -248,6 +249,6 @@ main:has(#today-view.active){height:auto;overflow:visible}
 
 @media(max-width:560px){
   .uptimer-handoff{margin-bottom:12px;padding:10px 12px}.uptimer-handoff small{font-size:11px}.uptimer-handoff>b{font-size:0}.uptimer-handoff>b::after{content:'↗';font-size:18px}
-  .jot-heading{padding:19px 16px 12px}.jot-heading h2{font-size:26px}.todo-tabs{margin:0 16px 10px}.quick-todo-form{margin:9px 16px 5px}.quick-todo-hint{margin:0 16px 10px}.todo-list{padding:0 16px 10px}
+  .jot-heading{padding:19px 16px 12px;gap:10px}.jot-heading h2{font-size:26px}.todo-title-controls{gap:8px}.todo-heading-actions{flex-direction:column;align-items:flex-end;gap:7px}.todo-heading-actions .settle-btn{width:auto;min-height:34px;padding:0 9px;font-size:12px}.todo-tabs{margin:0 16px 10px}.quick-todo-form{margin:9px 16px 5px}.quick-todo-hint{margin:0 16px 10px}.todo-list{padding:0 16px 10px}
   .todo-item{display:grid;grid-template-columns:auto minmax(0,1fr);padding:14px 0;gap:8px 10px}.todo-item .todo-copy{min-width:0}.todo-actions{grid-column:2;opacity:1;justify-content:flex-start}.todo-date-group>header{display:block}.todo-date-group>header span{display:block;margin-top:3px}.course-todo{grid-template-columns:auto minmax(0,1fr) auto;margin-inline:-5px;padding-inline:7px}.course-todo-badge{display:block}
 }

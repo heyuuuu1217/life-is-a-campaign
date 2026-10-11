@@ -66,7 +66,7 @@ function skillById(id){return data.skills.find(s=>s.id===id)}
 function todoRange(){const start=new Date(selected),end=new Date(selected);if(todoPeriod==='week'){const monday=weekStart(selected);start.setTime(monday.getTime());end.setTime(monday.getTime());end.setDate(end.getDate()+6)}else if(todoPeriod==='month'){start.setDate(1);end.setMonth(end.getMonth()+1,0)}return{start:keyOf(start),end:keyOf(end)}}
 function setTodoPeriod(period){todoPeriod=period;document.querySelectorAll('[data-todo-period]').forEach(button=>button.classList.toggle('active',button.dataset.todoPeriod===period));renderTodo()}
 function renderTodo(){
-  const range=todoRange(),labels={day:'今天',week:'这一周',month:`${selected.getMonth()+1} 月`},copies={day:'今天的课程和真正要推进的事。',week:'课程与待办按日期排在一起。',month:'用日期分组浏览整月，先捕捉，再慢慢整理。'};
+  const range=todoRange(),isToday=keyOf(selected)===keyOf(new Date()),dayLabel=isToday?'今日':`${selected.getMonth()+1}月${selected.getDate()}日 · 周${weekdays[selected.getDay()]}`,labels={day:dayLabel,week:'这一周',month:`${selected.getMonth()+1} 月`},copies={day:isToday?'今天的课程和真正要推进的事。':`${selected.getMonth()+1}月${selected.getDate()}日的课程和待办。`,week:'课程与待办按日期排在一起。',month:'用日期分组浏览整月，先捕捉，再慢慢整理。'};
   const actions=data.actions.filter(a=>a.date>=range.start&&a.date<=range.end).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.completed)-Number(b.completed)||(a.createdAt||'').localeCompare(b.createdAt||''));
   const courses=[];if(todoPeriod!=='month'){const cursor=new Date(`${range.start}T00:00:00`),last=new Date(`${range.end}T00:00:00`);while(cursor<=last){for(const course of data.courses.filter(c=>courseOccurs(c,cursor)).sort((a,b)=>a.start.localeCompare(b.start)))courses.push({date:keyOf(cursor),course});cursor.setDate(cursor.getDate()+1)}}
   $('todo-title').textContent=labels[todoPeriod];$('todo-period-copy').textContent=copies[todoPeriod];$('pending-count').textContent=actions.filter(a=>!a.completed).length;$('quick-todo-date').textContent=`加入 ${selected.getMonth()+1}月${selected.getDate()}日`;
@@ -154,7 +154,6 @@ function refreshSelects(){
 }
 
 function render(){
-  $('date-title').textContent=`${selected.getMonth()+1}月${selected.getDate()}日 · 周${weekdays[selected.getDay()]}`;$('week-label').textContent=`第 ${academicWeek(selected)} 周`;
   renderTodo();renderHabits();renderCourses();renderCases();renderNpcs();renderDailyEvent();renderInvestigator();renderLogs();renderSupply();refreshSelects();
   const dayActions=data.actions.filter(a=>a.date===keyOf(selected)),done=dayActions.filter(a=>a.completed).length;
   $('complete-rate').textContent=`${done} / ${dayActions.length}`;$('progress-bar').style.width=`${dayActions.length?done/dayActions.length*100:0}%`;$('brief-copy').textContent=dayActions.length?(done===dayActions.length?'今日行动已经全部完成。':`还有 ${dayActions.length-done} 项行动等待推进。`):'今天的调查尚未开始。';
