@@ -35,6 +35,7 @@ if(!Array.isArray(data.dailyEventTable))data.dailyEventTable=structuredClone(def
 data.progression={...initial.progression,...(data.progression||{})};
 data.schemaVersion=4;
 data.courses.forEach(course=>{if(Number(course.weekday)===7)course.weekday=0});
+const rolloverDate=keyOf(new Date());let rolledOver=false;data.actions.forEach(action=>{if(!action.completed&&action.date&&action.date<rolloverDate){action.date=rolloverDate;action.time='';rolledOver=true}});if(rolledOver)localStorage.setItem(KEY,JSON.stringify(data));
 
 let selected=new Date();selected.setHours(0,0,0,0);
 let supplyWeek=weekStart(selected);
@@ -69,7 +70,7 @@ function renderTodo(){
   const actions=data.actions.filter(a=>a.date>=range.start&&a.date<=range.end).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.completed)-Number(b.completed)||(a.createdAt||'').localeCompare(b.createdAt||''));
   const courses=[];if(todoPeriod!=='month'){const cursor=new Date(`${range.start}T00:00:00`),last=new Date(`${range.end}T00:00:00`);while(cursor<=last){for(const course of data.courses.filter(c=>courseOccurs(c,cursor)).sort((a,b)=>a.start.localeCompare(b.start)))courses.push({date:keyOf(cursor),course});cursor.setDate(cursor.getDate()+1)}}
   $('todo-title').textContent=labels[todoPeriod];$('todo-period-copy').textContent=copies[todoPeriod];$('pending-count').textContent=actions.filter(a=>!a.completed).length;$('quick-todo-date').textContent=`加入 ${selected.getMonth()+1}月${selected.getDate()}日`;
-  const row=a=>{const related=a.caseId?caseById(a.caseId):null,skill=skillById(a.skillId);return`<div class="todo-item ${a.completed?'done':''}" data-action-id="${a.id}"><button class="check ${a.completed?'done':''}" data-complete="${a.id}" aria-label="切换完成状态">${a.completed?'✓':''}</button><div class="todo-copy"><strong>${esc(a.title)}</strong><small>${a.duration} 分钟 · ${'★'.repeat(Number(a.difficulty)||1)}${related?` · 《${esc(related.title)}》`:''}${skill?` · ${esc(skill.name)}`:''}</small></div><div class="todo-actions">${!a.completed?`<button class="text-btn" data-move-action="${a.id}">改日期</button>`:''}<button class="text-btn" data-edit-action="${a.id}">编辑</button></div></div>`};
+  const row=a=>{const related=a.caseId?caseById(a.caseId):null,skill=skillById(a.skillId);return`<div class="todo-item ${a.completed?'done':''}" data-action-id="${a.id}"><button class="check ${a.completed?'done':''}" data-complete="${a.id}" aria-label="切换完成状态">${a.completed?'✓':''}</button><div class="todo-copy"><strong>${esc(a.title)}</strong><small>${'★'.repeat(Number(a.difficulty)||1)}${related?` · 《${esc(related.title)}》`:''}${skill?` · ${esc(skill.name)}`:''}</small></div><div class="todo-actions">${!a.completed?`<button class="text-btn" data-move-tomorrow="${a.id}">移到明天</button>`:''}<button class="text-btn" data-edit-action="${a.id}">编辑</button></div></div>`};
   const courseRow=course=>`<div class="todo-item course-todo"><span class="course-todo-mark" aria-hidden="true">课</span><div class="todo-copy"><strong>${esc(course.name)}</strong><small>${esc(course.start)}–${esc(course.end)} · ${esc(course.location||'地点未设置')}</small></div><span class="course-todo-badge">课程</span></div>`;
   if(!actions.length&&!courses.length){$('pending-list').innerHTML='<div class="empty compact-empty"><b>这里很安静</b>在上面写下第一件事，按回车就会加入。</div>';return}
   if(todoPeriod==='day'){$('pending-list').innerHTML=courses.map(item=>courseRow(item.course)).join('')+actions.map(row).join('');return}
@@ -162,9 +163,8 @@ function render(){
 
 function showDialog(id){$(id).showModal()}
 function openAction(action=null,caseId=''){
-  $('action-form').reset();$('action-id').value=action?.id||'';$('action-dialog-title').textContent=action?'编辑行动':'新建行动';$('action-title').value=action?.title||'';$('action-date').value=action?.date||keyOf(selected);$('action-duration').value=String(action?.duration||30);$('action-difficulty').value=String(action?.difficulty||3);refreshSelects();$('action-case').value=action?.caseId||caseId||'';$('action-skill').value=action?.skillId||'';showDialog('action-dialog')
+  $('action-form').reset();$('action-id').value=action?.id||'';$('action-dialog-title').textContent=action?'编辑行动':'新建行动';$('action-title').value=action?.title||'';$('action-date').value=action?.date||keyOf(selected);$('action-difficulty').value=String(action?.difficulty||3);refreshSelects();$('action-case').value=action?.caseId||caseId||'';$('action-skill').value=action?.skillId||'';showDialog('action-dialog')
 }
-function openMoveAction(action){if(!action)return;$('move-action-form').reset();$('move-action-id').value=action.id;$('move-action-name').textContent=action.title;$('move-action-date').value=action.date||keyOf(selected);showDialog('move-action-dialog')}
 function openCourse(course=null){$('course-form').reset();$('course-id').value=course?.id||'';$('course-dialog-title').textContent=course?'编辑课程':'添加课程';$('course-name').value=course?.name||'';$('course-weekday').value=String(course?.weekday??1);$('course-location').value=course?.location||'';$('course-start').value=course?.start||'08:30';$('course-end').value=course?.end||'10:05';$('course-first-week').value=course?.firstWeek||1;$('course-last-week').value=course?.lastWeek||20;$('course-repeat').value=course?.repeat||'weekly';$('course-weeks').value=(course?.weeks||[]).join(',');$('course-weeks-wrap').hidden=$('course-repeat').value!=='custom';showDialog('course-dialog')}
 function renderCaseDetail(){
   const c=caseById(currentCaseId);if(!c)return;
@@ -187,7 +187,6 @@ $('prev-day').onclick=()=>{selected.setDate(selected.getDate()-1);render()};
 $('next-day').onclick=()=>{selected.setDate(selected.getDate()+1);render()};
 $('go-today').onclick=()=>{selected=new Date();selected.setHours(0,0,0,0);render()};
 $('quick-todo-form').onsubmit=e=>{e.preventDefault();const input=$('quick-todo-title'),title=input.value.trim();if(!title)return;data.actions.push({id:uid(),title,date:keyOf(selected),time:'',duration:30,difficulty:1,notes:'',caseId:null,skillId:null,completed:false,completedAt:null,rewardXp:null,rewardCoins:null,createdAt:new Date().toISOString()});input.value='';persist();requestAnimationFrame(()=>input.focus());toast('待办已添加，可继续输入')};
-$('move-action-form').onsubmit=e=>{e.preventDefault();const action=data.actions.find(a=>a.id===$('move-action-id').value),date=$('move-action-date').value;if(!action||!date)return;action.date=date;action.time='';action.completed=false;action.completedAt=null;$('move-action-dialog').close();persist();toast('未完成行动已重新安排')};
 $('add-course').onclick=()=>openCourse();
 $('course-repeat').onchange=e=>$('course-weeks-wrap').hidden=e.target.value!=='custom';
 $('add-habit').onclick=()=>{$('habit-form').reset();$('habit-target').value=1;$('habit-weekdays-wrap').hidden=true;showDialog('habit-dialog')};
@@ -210,7 +209,7 @@ $('daily-event-form').onsubmit=e=>{e.preventDefault();const id=$('daily-event-id
 
 $('action-form').onsubmit=e=>{
   e.preventDefault();const id=$('action-id').value,existing=data.actions.find(a=>a.id===id),oldSkillId=existing?.skillId;
-  const action={id:id||uid(),title:$('action-title').value.trim(),date:$('action-date').value,time:existing?.time||'',duration:Number($('action-duration').value),difficulty:Number($('action-difficulty').value),notes:existing?.notes||'',caseId:$('action-case').value||null,skillId:$('action-skill').value||null,completed:existing?.completed||false,completedAt:existing?.completedAt||null,rewardXp:existing?.rewardXp||null,rewardCoins:existing?.rewardCoins||null,createdAt:existing?.createdAt||new Date().toISOString()};
+  const action={id:id||uid(),title:$('action-title').value.trim(),date:$('action-date').value,time:existing?.time||'',duration:existing?.duration||30,difficulty:Number($('action-difficulty').value),notes:existing?.notes||'',caseId:$('action-case').value||null,skillId:$('action-skill').value||null,completed:existing?.completed||false,completedAt:existing?.completedAt||null,rewardXp:existing?.rewardXp||null,rewardCoins:existing?.rewardCoins||null,createdAt:existing?.createdAt||new Date().toISOString()};
   if(existing?.completed&&oldSkillId!==action.skillId){const earned=Number(existing.rewardXp||actionReward(existing).xp),oldSkill=skillById(oldSkillId),newSkill=skillById(action.skillId);if(oldSkill)oldSkill.xp=Math.max(0,Number(oldSkill.xp||0)-earned);if(newSkill)newSkill.xp=Number(newSkill.xp||0)+earned}
   if(existing)Object.assign(existing,action);else data.actions.push(action);$('action-dialog').close();persist();toast(existing?'行动已更新':'行动已加入调查日程')
 };
@@ -241,8 +240,7 @@ $('import-data').onchange=async e=>{const file=e.target.files[0];if(!file)return
 
 document.body.addEventListener('click',e=>{
   const target=e.target.closest('button');if(!target)return;
-  if(target.dataset.moveAction){openMoveAction(data.actions.find(a=>a.id===target.dataset.moveAction));return}
-  if(target.dataset.movePreset){const base=new Date(selected);if(target.dataset.movePreset==='tomorrow')base.setDate(base.getDate()+1);if(target.dataset.movePreset==='next-week'){const day=base.getDay()||7;base.setDate(base.getDate()+(8-day))}$('move-action-date').value=keyOf(base);return}
+  if(target.dataset.moveTomorrow){const action=data.actions.find(a=>a.id===target.dataset.moveTomorrow);if(action){const tomorrow=new Date(`${action.date}T00:00:00`);tomorrow.setDate(tomorrow.getDate()+1);action.date=keyOf(tomorrow);action.time='';persist();toast('已移到明天')}return}
   if(target.id==='roll-daily-event'){
     const date=keyOf(selected);if(date!==keyOf(new Date())||dailyEventOn(date)||!data.dailyEventTable.length)return;
     const event=data.dailyEventTable[Math.floor(Math.random()*data.dailyEventTable.length)];data.dailyEventRolls.push({id:uid(),date,eventId:event.id,name:event.name,description:event.description,xp:event.xp,coins:event.coins,status:'rolled',rolledAt:new Date().toISOString(),completedAt:null});persist();toast('今日事件已抽取，今天不能重抽');return
