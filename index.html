@@ -8,7 +8,7 @@
   <title>Life Campaign</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="stylesheet" href="./styles.css?v=6.2">
+  <link rel="stylesheet" href="./styles.css?v=6.4">
 </head>
 <body class="synced">
   <div class="app-shell">
@@ -95,7 +95,7 @@
     <nav class="mobile-nav" aria-label="主导航"><button class="nav-item active" data-tab="today"><span>◷</span>今日</button><button class="nav-item" data-tab="archive"><span>▰</span>档案</button><button class="nav-item" data-tab="investigator"><span>♙</span>调查员</button><button class="nav-item" data-tab="logs"><span>≡</span>记录</button></nav>
   </div>
 
-  <dialog id="action-dialog"><form id="action-form"><input type="hidden" id="action-id"><div class="dialog-head"><div><p class="section-code">ACTION</p><h2 id="action-dialog-title">新建行动</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>行动名称<input id="action-title" required maxlength="80" placeholder="例如：修改论文 3.3"></label><div class="form-row"><label>日期<input id="action-date" type="date" required></label><label>难度<select id="action-difficulty"><option value="1">★☆☆☆☆</option><option value="2">★★☆☆☆</option><option value="3">★★★☆☆</option><option value="4">★★★★☆</option><option value="5">★★★★★</option></select></label></div><div class="form-row"><label>所属模组<select id="action-case"></select></label><label>使用技能<select id="action-skill"></select></label></div><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存行动</button></div></form></dialog>
+  <dialog id="action-dialog"><form id="action-form"><input type="hidden" id="action-id"><div class="dialog-head"><div><p class="section-code">ACTION</p><h2 id="action-dialog-title">新建行动</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>行动名称<input id="action-title" required maxlength="80" placeholder="例如：修改论文 3.3"></label><label>日期<input id="action-date" type="date" required></label><div class="form-row"><label>所属模组（可选）<select id="action-case"></select></label><label>使用技能（可选）<select id="action-skill"></select></label></div><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存行动</button></div></form></dialog>
 
   <dialog id="course-dialog"><form id="course-form"><input type="hidden" id="course-id"><div class="dialog-head"><div><p class="section-code">COURSE FILE</p><h2 id="course-dialog-title">添加课程</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>课程名称<input id="course-name" required maxlength="80" placeholder="例如：电力系统分析"></label><div class="form-row"><label>星期<select id="course-weekday"><option value="1">星期一</option><option value="2">星期二</option><option value="3">星期三</option><option value="4">星期四</option><option value="5">星期五</option><option value="6">星期六</option><option value="0">星期日</option></select></label><label>地点<input id="course-location" placeholder="例如：A203"></label></div><div class="form-row"><label>开始<input id="course-start" type="time" value="08:30" required></label><label>结束<input id="course-end" type="time" value="10:05" required></label></div><div class="form-row"><label>起始周<input id="course-first-week" type="number" min="1" max="40" value="1"></label><label>结束周<input id="course-last-week" type="number" min="1" max="40" value="20"></label></div><label>重复规则<select id="course-repeat"><option value="weekly">每周</option><option value="odd">单周</option><option value="even">双周</option><option value="custom">指定周</option></select></label><label id="course-weeks-wrap" hidden>指定周数（逗号分隔，可写 5-8）<input id="course-weeks" maxlength="100" placeholder="例如：1,3,5-8"></label><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存课程</button></div></form></dialog>
 
@@ -123,6 +123,6 @@
   <dialog id="supply-item-dialog"><form id="supply-item-form"><input type="hidden" id="supply-item-id"><div class="dialog-head"><div><p class="section-code">SUPPLY CATEGORY</p><h2 id="supply-item-title">自定义食物种类</h2></div><button type="button" class="icon-btn close" data-close aria-label="关闭">×</button></div><label>名称<input id="supply-item-name" required maxlength="30" placeholder="例如：海藻"></label><div class="form-row"><label>分类<select id="supply-item-group"><option value="vegetable">蔬菜</option><option value="fruit">水果</option><option value="protein">肉类与蛋白质</option><option value="other">其他</option></select></label><label>每周目标次数<input id="supply-item-target" type="number" min="1" max="20" value="1" required></label></div><p class="muted">默认 1 次，即本周吃过就点亮；次数仅用于自己的记录。</p><div class="dialog-actions"><button type="button" data-close class="ghost-btn">取消</button><button type="submit" class="primary-btn">保存种类</button></div></form></dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js?v=6.3"></script>
+  <script src="./app.js?v=6.4"></script>
 </body>
 </html>

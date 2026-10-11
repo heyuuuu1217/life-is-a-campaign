@@ -243,6 +243,7 @@ main:has(#today-view.active){height:auto;overflow:visible}
 .todo-item:first-child{border-top:0}.todo-copy strong{font-size:15px;font-weight:700}.todo-copy small{margin-top:5px;font-size:11px;white-space:normal}
 .todo-actions{display:flex;gap:5px;opacity:.25;transition:opacity .15s}.todo-item:hover .todo-actions,.todo-item:focus-within .todo-actions{opacity:1}.todo-actions .text-btn{font-size:12px}
 .todo-date-group{margin-top:8px}.todo-date-group+ .todo-date-group{margin-top:24px}.todo-date-group>header{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #cbdacb;color:#234b34}.todo-date-group>header span{color:var(--muted);font-size:12px}
+[data-action-id]{cursor:pointer;touch-action:manipulation}[data-action-id]:focus{outline:2px solid #76a984;outline-offset:2px;border-radius:7px}
 .course-todo{background:#f2f8f1;margin:0 -8px;padding:14px 8px;border-color:#dbe8da;border-radius:8px}.course-todo+.course-todo{margin-top:4px}.course-todo-mark{display:grid;place-items:center;width:27px;height:27px;border-radius:8px;background:#2f6f49;color:#fff;font-size:12px;font-weight:850}.course-todo .todo-copy small{color:#4e6c57;font-variant-numeric:tabular-nums}.course-todo-badge{align-self:center;padding:4px 8px;border-radius:20px;background:#dcebdd;color:#2b6844;font-size:11px;font-weight:800}
 
 @media(max-width:560px){
