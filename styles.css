@@ -243,9 +243,10 @@ main:has(#today-view.active){height:auto;overflow:visible}
 .todo-item:first-child{border-top:0}.todo-copy strong{font-size:15px;font-weight:700}.todo-copy small{margin-top:5px;font-size:11px;white-space:normal}
 .todo-actions{display:flex;gap:5px;opacity:.25;transition:opacity .15s}.todo-item:hover .todo-actions,.todo-item:focus-within .todo-actions{opacity:1}.todo-actions .text-btn{font-size:12px}
 .todo-date-group{margin-top:8px}.todo-date-group+ .todo-date-group{margin-top:24px}.todo-date-group>header{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #cbdacb;color:#234b34}.todo-date-group>header span{color:var(--muted);font-size:12px}
+.course-todo{background:#f2f8f1;margin:0 -8px;padding:14px 8px;border-color:#dbe8da;border-radius:8px}.course-todo+.course-todo{margin-top:4px}.course-todo-mark{display:grid;place-items:center;width:27px;height:27px;border-radius:8px;background:#2f6f49;color:#fff;font-size:12px;font-weight:850}.course-todo .todo-copy small{color:#4e6c57;font-variant-numeric:tabular-nums}.course-todo-badge{align-self:center;padding:4px 8px;border-radius:20px;background:#dcebdd;color:#2b6844;font-size:11px;font-weight:800}
 
 @media(max-width:560px){
   .uptimer-handoff{margin-bottom:12px;padding:10px 12px}.uptimer-handoff small{font-size:11px}.uptimer-handoff>b{font-size:0}.uptimer-handoff>b::after{content:'↗';font-size:18px}
   .jot-heading{padding:19px 16px 12px}.jot-heading h2{font-size:26px}.todo-tabs{margin:0 16px 10px}.quick-todo-form{margin:9px 16px 5px}.quick-todo-hint{margin:0 16px 10px}.todo-list{padding:0 16px 10px}
-  .todo-item{display:grid;grid-template-columns:auto minmax(0,1fr);padding:14px 0;gap:8px 10px}.todo-item .todo-copy{min-width:0}.todo-actions{grid-column:2;opacity:1;justify-content:flex-start}.todo-date-group>header{display:block}.todo-date-group>header span{display:block;margin-top:3px}
+  .todo-item{display:grid;grid-template-columns:auto minmax(0,1fr);padding:14px 0;gap:8px 10px}.todo-item .todo-copy{min-width:0}.todo-actions{grid-column:2;opacity:1;justify-content:flex-start}.todo-date-group>header{display:block}.todo-date-group>header span{display:block;margin-top:3px}.course-todo{grid-template-columns:auto minmax(0,1fr) auto;margin-inline:-5px;padding-inline:7px}.course-todo-badge{display:block}
 }
