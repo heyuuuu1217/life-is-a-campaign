@@ -3,7 +3,7 @@
  * 答案使用纯文本数组，不把用户内容当成 HTML 执行。
  */
 window.STUDY_CONTENT = {
-  version: 'demo-20261105', demo: true,
+  version: 'demo-20261105-2', demo: true,
   topics: [
     {id:'computer', title:'计算机组成', subtitle:'从部件到计算机的工作方式', mark:'01', icon:'chip'},
     {id:'representation', title:'信息的表示', subtitle:'二进制、编码与数字化', mark:'02', icon:'binary'},
@@ -11,6 +11,21 @@ window.STUDY_CONTENT = {
     {id:'ai', title:'人工智能', subtitle:'表示、推理与智能应用', mark:'04', icon:'spark'},
     {id:'cloud-iot', title:'云计算与物联网', subtitle:'算力、感知与连接，放在一起', mark:'05', icon:'cloud'},
     {id:'ml', title:'机器学习', subtitle:'从数据中学习，也学会评估', mark:'06', icon:'nodes'}
+  ],
+  knowledge: [
+    {id:'knowledge-01',topic:'computer',title:'指令周期的定义',answer:['CPU 从取出一条指令开始，到执行完这条指令所需的全部时间。'],explanation:'通常包括取指令、译码和执行等过程；它与机器周期、时钟周期不是同一概念。'},
+    {id:'knowledge-02',topic:'computer',title:'控制器的作用',answer:['按照指令组织、协调和控制计算机各部件的工作。'],explanation:'运算器负责算术与逻辑运算，控制器负责组织执行过程。'},
+    {id:'knowledge-03',topic:'computer',title:'DRAM 的刷新',answer:['DRAM 利用电容储存信息。电荷会逐渐泄漏，因此必须定时刷新以保持数据。'],explanation:'DRAM 通常在断电后丢失数据。'},
+    {id:'knowledge-04',topic:'representation',title:'字节与二进制位的关系',answer:['1 Byte（字节）= 8 bit（二进制位）。'],explanation:'注意大写 B 与小写 b 的区别；“字”的长度则要看具体处理器或题目约定。'},
+    {id:'knowledge-05',topic:'representation',title:'十进制整数转换为二进制的方法',answer:['反复除以 2，记录余数，直到商为 0；将余数从后往前排列。'],explanation:'例如 13 对应 1101₂，可以用 8 + 4 + 1 = 13 反向验证。'},
+    {id:'knowledge-06',topic:'data',title:'大数据的 4V 特征',answer:['Volume：体量大。','Velocity：产生与处理速度快。','Variety：类型多样。','Value：价值。'],explanation:'价值密度低不等于没有价值。此处为示例表述，正式内容以你整理的课件知识点为准。'},
+    {id:'knowledge-07',topic:'data',title:'聚类的定义',answer:['依据数据之间的相似性，将数据划分为若干组，使同组数据尽可能相似。'],explanation:'聚类通常不需要事先给定类别标签，属于常见的无监督学习任务。'},
+    {id:'knowledge-08',topic:'ai',title:'人工智能与机器学习的关系',answer:['机器学习是人工智能的重要分支，人工智能的范围更广。'],explanation:'人工智能还包括知识表示、逻辑推理、专家系统等方向。'},
+    {id:'knowledge-09',topic:'ai',title:'知识表示的定义',answer:['把知识形式化或模型化，使计算机能够处理和利用。'],explanation:'常见方法包括逻辑表示、产生式规则表示等。'},
+    {id:'knowledge-10',topic:'cloud-iot',title:'云计算的三种常见服务模式',answer:['IaaS：基础设施即服务，提供计算、存储、网络等资源。','PaaS：平台即服务，提供开发和运行平台。','SaaS：软件即服务，提供可直接使用的软件功能。'],explanation:'区分向用户交付的是资源、平台还是软件。'},
+    {id:'knowledge-11',topic:'cloud-iot',title:'物联网的三层架构',answer:['从下到上：感知层、网络层、应用层。'],explanation:'感知层采集与识别，网络层接入与传输，应用层处理业务。'},
+    {id:'knowledge-12',topic:'ml',title:'监督学习的定义',answer:['利用带有目标标签的训练样本，学习输入与目标之间的关系，以预测新样本的结果。'],explanation:'分类和回归都是常见的监督学习任务。'},
+    {id:'knowledge-13',topic:'ml',title:'过拟合的含义',answer:['模型过度贴合训练数据中的细节或噪声，导致在未见数据上的泛化表现较差。'],explanation:'常表现为训练效果很好、测试效果较差，但也应排查数据分布变化和评估方式等原因。'}
   ],
   questions: [
     {id:'demo-01',topic:'computer',type:'choice',title:'CPU 中，主要负责组织和协调各部件工作的部分是？',options:['运算器','控制器','硬盘','显示器'],correct:1,answer:['B · 控制器。'],explanation:'控制器按指令组织工作；运算器主要完成算术与逻辑运算。',hint:'控制器管“怎么安排”，运算器管“怎么算”。'},
