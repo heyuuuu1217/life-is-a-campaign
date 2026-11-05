@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 410" role="img" aria-labelledby="title desc">
+<title id="title">典型存储器层次结构</title><desc id="desc">从上到下依次为寄存器、高速缓存 SRAM、内存 DRAM、SSD、HDD。通常向上速度快、单位成本高、容量小。</desc>
+<rect width="420" height="410" rx="16" fill="#fff"/>
+<g font-family="sans-serif" text-anchor="middle" fill="#254b63">
+<text x="210" y="31" font-size="19" font-weight="600">典型存储器层次结构</text>
+<path d="M210 56 260 115H160Z" fill="#365e76"/>
+<text x="210" y="103" fill="white" font-size="14">寄存器</text>
+<path d="M155 122H265L301 179H119Z" fill="#678b9f"/>
+<text x="210" y="156" fill="white" font-size="15">Cache（SRAM）</text>
+<path d="M115 186H305L338 243H82Z" fill="#adc5ce"/>
+<text x="210" y="220" font-size="16">内存（DRAM）</text>
+<path d="M78 250H342L376 307H44Z" fill="#d4e1e3"/>
+<text x="210" y="285" font-size="16">SSD 固态硬盘</text>
+<path d="M40 314H380L403 356H17Z" fill="#e8eeec"/>
+<text x="210" y="342" font-size="16">HDD 机械硬盘</text>
+<text x="210" y="389" font-size="13">↑ 通常更快、更贵、更小　↓ 通常更慢、更便宜、更大</text>
+</g>
+<g stroke="#88a2af" stroke-width="2" fill="none"><path d="M32 220V80l-6 10m6-10 6 10"/><path d="M388 80v140l-6-10m6 10 6-10"/></g>
+<g font-family="sans-serif" font-size="12" fill="#607c8b"><text x="8" y="242">快</text><text x="8" y="259">贵</text><text x="8" y="276">小</text><text x="396" y="242">慢</text><text x="396" y="259">廉</text><text x="396" y="276">大</text></g>
+</svg>

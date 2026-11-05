@@ -25,7 +25,8 @@
   const topicMap=new Map(content.topics.map(t=>[t.id,t]));
   const KEY='yiyeyiwen.study.v1';
   const routes=['home','topics','types','wrong','review','study','summary'];
-  const emptyState=()=>({records:{},last:null});
+  const checklistIds=new Set((content.checklists||[]).flatMap(c=>c.items.map(item=>item.id)));
+  const emptyState=()=>({records:{},last:null,checklist:[]});
   let storageOkay=true;
   function load(){
     try{
@@ -40,7 +41,8 @@
         const ids=[...new Set(parsed.last.ids.filter(id=>questionMap.has(id)))];
         if(ids.length)last={ids,index:Math.max(0,Math.min(Number.isInteger(parsed.last.index)?parsed.last.index:0,ids.length-1)),label:String(parsed.last.label||'题型练习'),origin:['types','wrong','review','home'].includes(parsed.last.origin)?parsed.last.origin:'types',seen:Array.isArray(parsed.last.seen)?[...new Set(parsed.last.seen.filter(id=>ids.includes(id)))]:[],complete:!!parsed.last.complete};
       }
-      return {records,last};
+      const checklist=Array.isArray(parsed.checklist)?[...new Set(parsed.checklist.filter(id=>checklistIds.has(id)))]:[];
+      return {records,last,checklist};
     }catch{storageOkay=false;return emptyState();}
   }
   let state=load(),revealed=false,selection=null,graded=false,noticeTimer;
@@ -63,7 +65,7 @@
     if(!list.length){toast('这里暂时没有题目。');return;}
     state.last={ids:random?shuffle(list):list,index:0,label,origin,seen:[],complete:false};save();go('study');
   }
-  const demoNote=()=>content.demo?'<div class="demo-note"><span class="demo-dot"></span><p>当前为演示内容，正式知识点等你整理好后替换。</p></div>':'';
+  const demoNote=()=>content.demo?'<div class="demo-note"><span class="demo-dot"></span><p>当前为演示内容，正式知识点等你整理好后替换。</p></div>':content.notice?`<p class="chapter-note">${escape(content.notice)}</p>`:'';
   const pageHead=(title,lead)=>`<div class="page-head"><h1>${escape(title)}</h1><p class="lead">${escape(lead)}</p></div>`;
   function nav(){
     const current=route(),active=['study','summary'].includes(current)?state.last?.origin||'types':current;
@@ -74,26 +76,33 @@
   function home(){
     const resume=state.last&&!state.last.complete;
     return pageHead('现代信息技术 复习','选择知识点直接看定义，或按题型练习。')+demoNote()+`
-      <div class="mode-grid"><a class="mode-card primary" href="#topics"><span class="mode-icon">${icon('book')}</span><h2>过知识点</h2><p>点击知识点名称，展开答案。</p><span class="mode-foot">${knowledgeMap.size} 个示例知识点${icon('arrow')}</span></a>
-      <a class="mode-card" href="#types"><span class="mode-icon">${icon('types')}</span><h2>按题型练习</h2><p>选择、填空、判断、简答。</p><span class="mode-foot">${questionMap.size} 道示例题${icon('arrow')}</span></a></div>
+      <div class="mode-grid"><a class="mode-card primary" href="#topics"><span class="mode-icon">${icon('book')}</span><h2>过知识点</h2><p>点击知识点名称，展开答案。</p><span class="mode-foot">${knowledgeMap.size} 个${content.demo?'示例':''}知识点${icon('arrow')}</span></a>
+      <a class="mode-card" href="#types"><span class="mode-icon">${icon('types')}</span><h2>按题型练习</h2><p>选择、填空、判断、简答。</p><span class="mode-foot">${questionMap.size} 道${content.demo?'示例':''}题${icon('arrow')}</span></a></div>
       <div class="collection-shortcuts"><a href="#wrong">${icon('wrong')}<span>错题</span><strong>${collectionIds('wrong').length}</strong>${icon('arrow')}</a><a href="#review">${icon('refresh')}<span>要再复习</span><strong>${collectionIds('review').length}</strong>${icon('arrow')}</a></div>
       ${resume?`<button class="continue-card" data-action="resume"><span class="continue-icon">${icon('play')}</span><span><h3>继续：${escape(state.last.label)}</h3><p>第 ${state.last.index+1} / ${state.last.ids.length} 题</p></span>${icon('arrow')}</button>`:''}
       <p class="storage-note">${storageOkay?'错题和复习标记保存在当前浏览器，不跨设备同步。':'当前浏览器无法保存记录，仍可查看知识点和练习题。'}</p>`;
   }
-  function answerBody(item){return `<div class="answer-points">${item.answer.map(p=>`<p>${escape(p)}</p>`).join('')}</div>${item.explanation?`<p class="explanation">${escape(item.explanation)}</p>`:''}${item.hint?`<p class="memory-hint"><span>记忆提示</span>${escape(item.hint)}</p>`:''}`;}
+  const diagrams=new Map([['memory','diagrams/ch1-memory.svg'],['hardware','diagrams/ch1-hardware.svg'],['system','diagrams/ch1-system.svg']]);
+  function answerBody(item){const diagram=diagrams.get(item.diagram);return `<div class="answer-points">${item.answer.map(p=>`<p>${escape(p)}</p>`).join('')}</div>${item.explanation?`<p class="explanation">${escape(item.explanation)}</p>`:''}${diagram?`<figure class="knowledge-diagram"><a href="${diagram}" target="_blank" rel="noopener"><img src="${diagram}" alt="${escape(item.title)}" loading="lazy"></a><figcaption>按课件结构整理 · 点图可放大</figcaption></figure>`:''}${item.level?`<p class="knowledge-scope">复习提示：${escape(item.level)}</p>`:''}${item.hint?`<p class="memory-hint"><span>记忆提示</span>${escape(item.hint)}</p>`:''}`;}
   function flagButton(id,kind){const active=getRecord(id)[kind],name=kind==='wrong'?'错题':'要再复习';return `<button class="flag-button ${kind} ${active?'active':''}" data-action="flag" data-id="${escape(id)}" data-value="${kind}" aria-pressed="${active}">${icon(kind==='wrong'?'wrong':'refresh')}${active?'已标记：'+name:name}</button>`;}
   function knowledgeCard(k){
     const open=opened.has(k.id),flag=getRecord(k.id).review;
     return `<article class="knowledge-card ${open?'is-open':''}"><button class="knowledge-toggle" id="toggle-${escape(k.id)}" data-action="knowledge-toggle" data-id="${escape(k.id)}" aria-expanded="${open}" aria-controls="answer-${escape(k.id)}"><h2>${escape(k.title)}</h2><span class="knowledge-toggle-end">${flag?'<span class="review-badge">要再复习</span>':''}${icon(open?'up':'down')}</span></button><div id="answer-${escape(k.id)}" class="knowledge-detail" ${open?'':'hidden'}>${open?`<section class="answer-panel" aria-label="知识点答案">${answerBody(k)}</section><div class="knowledge-actions">${flagButton(k.id,'review')}</div>`:''}</div></article>`;
   }
   function topics(){
-    const visible=content.topics.filter(t=>topicFilter==='all'||topicFilter===t.id);
-    return pageHead('过知识点','点一下知识点名称查看答案，再点一下收起。')+demoNote()+`<div class="topic-filters" role="group" aria-label="按模块筛选"><button class="filter-button ${topicFilter==='all'?'active':''}" data-action="topic-filter" data-id="all" aria-pressed="${topicFilter==='all'}">全部</button>${content.topics.map(t=>`<button class="filter-button ${topicFilter===t.id?'active':''}" data-action="topic-filter" data-id="${escape(t.id)}" aria-pressed="${topicFilter===t.id}">${escape(t.title)}</button>`).join('')}</div>`+visible.map(t=>{
+    const available=content.topics.filter(t=>[...knowledgeMap.values()].some(k=>k.topic===t.id));
+    const visible=available.filter(t=>topicFilter==='all'||topicFilter===t.id);
+    return pageHead('过知识点','点一下知识点名称查看答案，再点一下收起。')+demoNote()+`<div class="topic-filters" role="group" aria-label="按模块筛选"><button class="filter-button ${topicFilter==='all'?'active':''}" data-action="topic-filter" data-id="all" aria-pressed="${topicFilter==='all'}">全部</button>${available.map(t=>`<button class="filter-button ${topicFilter===t.id?'active':''}" data-action="topic-filter" data-id="${escape(t.id)}" aria-pressed="${topicFilter===t.id}">${escape(t.title)}</button>`).join('')}</div>`+visible.map(t=>{
       const list=[...knowledgeMap.values()].filter(k=>k.topic===t.id);
-      return `<section class="knowledge-group"><div class="section-heading"><h2>${escape(t.title)}</h2><small>${list.length} 个知识点</small></div><div class="list-stack">${list.map(knowledgeCard).join('')}</div></section>`;
+      return `<section class="knowledge-group"><div class="section-heading"><h2>${escape(t.title)}</h2><small>${list.length} 个知识点</small></div>${chapterChecklist(t.id)}<div class="list-stack">${list.map(knowledgeCard).join('')}</div></section>`;
     }).join('');
   }
-  function types(){return pageHead('按题型练习','先作答，再点击查看答案。')+demoNote()+`<div class="topic-grid">${Object.entries(TYPES).map(([id,t])=>`<button class="topic-card type-card" data-action="type" data-id="${id}"><span class="count">${content.questions.filter(q=>q.type===id).length} 道示例题</span><span class="type-symbol" aria-hidden="true">${t.symbol}</span><h2>${t.name}</h2></button>`).join('')}</div><button class="wide-button" data-action="shuffle">${icon('shuffle')}混合题型，随机练习</button>`;}
+  function chapterChecklist(topic){
+    const list=(content.checklists||[]).find(c=>c.topic===topic);if(!list)return '';
+    const isOpen=opened.has('checklist-'+topic),done=list.items.filter(item=>state.checklist.includes(item.id)).length;
+    return `<section class="chapter-checklist"><button class="checklist-heading" data-action="outline-toggle" data-id="${escape(topic)}" aria-expanded="${isOpen}" aria-controls="checklist-${escape(topic)}"><h3>${escape(list.title)}</h3><span>${done} / ${list.items.length}</span>${icon(isOpen?'up':'down')}</button><div id="checklist-${escape(topic)}" ${isOpen?'':'hidden'}>${isOpen?`<p class="checklist-help">能独立复述或画出来，再勾选。</p><div class="checklist-items">${list.items.map(item=>{const checked=state.checklist.includes(item.id);return `<button class="checklist-item ${checked?'checked':''}" role="checkbox" aria-checked="${checked}" data-action="checklist" data-id="${escape(item.id)}"><span class="check-square" aria-hidden="true">${checked?'✓':''}</span><span>${escape(item.text)}</span></button>`;}).join('')}</div>`:''}</div></section>`;
+  }
+  function types(){return pageHead('按题型练习','先作答，再点击查看答案。')+demoNote()+`<div class="topic-grid">${Object.entries(TYPES).map(([id,t])=>`<button class="topic-card type-card" data-action="type" data-id="${id}"><span class="count">${content.questions.filter(q=>q.type===id).length} 道${content.demo?'示例':''}题</span><span class="type-symbol" aria-hidden="true">${t.symbol}</span><h2>${t.name}</h2></button>`).join('')}</div><button class="wide-button" data-action="shuffle">${icon('shuffle')}混合题型，随机练习</button>`;}
   function study(){
     if(!state.last)return empty('还没有开始练习','先选择一种题型。','types','选择题型');
     const s=state.last,q=questionMap.get(s.ids[s.index]);
@@ -139,6 +148,8 @@
     const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
     const {action,id,value,origin}=button.dataset;
     switch(action){
+      case 'outline-toggle':if(topicMap.has(id)){const key='checklist-'+id;opened.has(key)?opened.delete(key):opened.add(key);render();}break;
+      case 'checklist':if(checklistIds.has(id)){state.checklist=state.checklist.includes(id)?state.checklist.filter(value=>value!==id):[...state.checklist,id];save();render();}break;
       case 'topic-filter':if(id==='all'||topicMap.has(id)){topicFilter=id;render();}break;
       case 'knowledge-toggle':{
         if(!knowledgeMap.has(id))break;

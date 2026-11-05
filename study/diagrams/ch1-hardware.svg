@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 370" role="img" aria-labelledby="title desc">
+<title id="title">微型计算机硬件系统结构</title><desc id="desc">CPU 和内存接入系统总线。外存、输入设备、输出设备和其他设备通过各自接口接入总线。</desc>
+<rect width="420" height="370" rx="16" fill="#fff"/>
+<g font-family="sans-serif" text-anchor="middle" fill="#254b63">
+<text x="210" y="30" font-size="18" font-weight="600">微型计算机硬件系统</text>
+<g fill="#e9f0f3" stroke="#9db7c6"><rect x="35" y="60" width="145" height="61" rx="10"/><rect x="245" y="60" width="140" height="61" rx="10"/></g>
+<text x="108" y="86" font-size="17">CPU</text><text x="108" y="108" font-size="13">控制器、运算器等</text><text x="315" y="96" font-size="17">内存</text>
+<g stroke="#698b9e" stroke-width="3" fill="none"><path d="M108 121v44M315 121v44M20 165H400M60 165v55M160 165v55M260 165v55M360 165v55"/></g>
+<text x="210" y="155" font-size="15" font-weight="600">系统总线</text>
+<g fill="#eef3ee" stroke="#b1c6b5"><rect x="20" y="220" width="80" height="44" rx="8"/><rect x="120" y="220" width="80" height="44" rx="8"/><rect x="220" y="220" width="80" height="44" rx="8"/><rect x="320" y="220" width="80" height="44" rx="8"/></g>
+<g font-size="14"><text x="60" y="248">外存接口</text><text x="160" y="248">输入接口</text><text x="260" y="248">输出接口</text><text x="360" y="248">其他接口</text></g>
+<g stroke="#9ab2bc" stroke-width="2"><path d="M60 264v25M160 264v25M260 264v25M360 264v25"/></g>
+<g fill="#f6f4ee" stroke="#d8d1bc"><rect x="20" y="289" width="80" height="45" rx="8"/><rect x="120" y="289" width="80" height="45" rx="8"/><rect x="220" y="289" width="80" height="45" rx="8"/><rect x="320" y="289" width="80" height="45" rx="8"/></g>
+<g font-size="13"><text x="60" y="317">SSD / HDD</text><text x="160" y="308">键盘、鼠标</text><text x="160" y="325">等输入设备</text><text x="260" y="308">显示器等</text><text x="260" y="325">输出设备</text><text x="360" y="317">其他外设</text></g>
+<text x="210" y="358" font-size="12" fill="#6b838f">实际 I/O 设备通常经接口接入系统总线。</text>
+</g></svg>

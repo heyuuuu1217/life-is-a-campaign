@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 560" role="img" aria-labelledby="title desc">
+<title id="title">计算机系统组成</title><desc id="desc">计算机系统分硬件系统和软件系统。硬件包括主机与外部设备，主机包括 CPU 和内存，CPU 包括运算器和控制器。软件包括系统软件和应用软件。</desc>
+<rect width="420" height="560" rx="16" fill="#fff"/>
+<g font-family="sans-serif" fill="#254b63">
+<rect x="104" y="15" width="212" height="45" rx="10" fill="#365e76"/><text x="210" y="44" fill="white" font-size="18" text-anchor="middle">计算机系统</text>
+<g stroke="#9eb7c3" stroke-width="2" fill="none"><path d="M210 60v20H25v331M25 110H55M25 411H55M125 130v15H80v188M80 214h15M80 333h26M125 431v16H80v75M80 470h26M80 522h26"/></g>
+<rect x="55" y="89" width="140" height="41" rx="8" fill="#e4eef3"/><text x="125" y="116" font-size="17" text-anchor="middle">硬件系统</text>
+<rect x="95" y="151" width="305" height="132" rx="9" fill="#f7faf8" stroke="#bacfc1"/>
+<text x="113" y="174" font-size="16" font-weight="600">主机</text>
+<g fill="#e5eee8"><rect x="108" y="184" width="278" height="49" rx="7"/><rect x="108" y="240" width="278" height="31" rx="7"/></g>
+<text x="121" y="205" font-size="15">CPU</text><text x="121" y="224" font-size="13">运算器、控制器等</text><text x="121" y="262" font-size="15">内存</text>
+<rect x="106" y="301" width="288" height="65" rx="8" fill="#edf3ef"/>
+<text x="120" y="325" font-size="16">外部设备</text><text x="120" y="350" font-size="13">输入设备、输出设备、外存等</text>
+<rect x="55" y="390" width="140" height="41" rx="8" fill="#e4eef3"/><text x="125" y="417" font-size="17" text-anchor="middle">软件系统</text>
+<g fill="#f6f1e8"><rect x="106" y="447" width="288" height="45" rx="8"/><rect x="106" y="502" width="288" height="45" rx="8"/></g>
+<text x="120" y="466" font-size="15">系统软件</text><text x="120" y="484" font-size="12">例如操作系统、数据库管理系统</text><text x="120" y="521" font-size="15">应用软件</text><text x="120" y="539" font-size="12">例如办公软件、翻译软件</text>
+</g></svg>
