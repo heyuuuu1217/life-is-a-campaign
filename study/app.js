@@ -46,11 +46,12 @@
     }catch{storageOkay=false;return emptyState();}
   }
   let state=load(),revealed=false,selection=null,graded=false,noticeTimer;
-  let topicFilter='all';
+  let topicFilter='all',questionTopicFilter='all';
   const opened=new Set();
   const main=document.getElementById('main');
   const getRecord=id=>state.records[id]||{seen:false,wrong:false,review:false};
   const allQuestionIds=()=>content.questions.map(q=>q.id);
+  const scopedQuestions=()=>content.questions.filter(q=>questionTopicFilter==='all'||q.topic===questionTopicFilter);
   const allItemIds=()=>[...(content.knowledge||[]).map(k=>k.id),...allQuestionIds()];
   const collectionIds=kind=>allItemIds().filter(id=>getRecord(id)[kind]&&(kind!=='wrong'||questionMap.has(id)));
   const counts=ids=>ids.reduce((r,id)=>{const v=getRecord(id);for(const key of ['seen','wrong','review'])if(v[key])r[key]++;return r;},{seen:0,wrong:0,review:0});
@@ -82,8 +83,8 @@
       ${resume?`<button class="continue-card" data-action="resume"><span class="continue-icon">${icon('play')}</span><span><h3>继续：${escape(state.last.label)}</h3><p>第 ${state.last.index+1} / ${state.last.ids.length} 题</p></span>${icon('arrow')}</button>`:''}
       <p class="storage-note">${storageOkay?'错题和复习标记保存在当前浏览器，不跨设备同步。':'当前浏览器无法保存记录，仍可查看知识点和练习题。'}</p>`;
   }
-  const diagrams=new Map([['memory','diagrams/ch1-memory.svg'],['hardware','diagrams/ch1-hardware.svg'],['system','diagrams/ch1-system.svg']]);
-  function answerBody(item){const diagram=diagrams.get(item.diagram);return `<div class="answer-points">${item.answer.map(p=>`<p>${escape(p)}</p>`).join('')}</div>${item.explanation?`<p class="explanation">${escape(item.explanation)}</p>`:''}${diagram?`<figure class="knowledge-diagram"><a href="${diagram}" target="_blank" rel="noopener"><img src="${diagram}" alt="${escape(item.title)}" loading="lazy"></a><figcaption>按课件结构整理 · 点图可放大</figcaption></figure>`:''}${item.level?`<p class="knowledge-scope">复习提示：${escape(item.level)}</p>`:''}${item.hint?`<p class="memory-hint"><span>记忆提示</span>${escape(item.hint)}</p>`:''}`;}
+  const diagrams=new Map([['memory','diagrams/ch1-memory.svg'],['hardware','diagrams/ch1-hardware.svg'],['system','diagrams/ch1-system.svg'],['ml-boundary','diagrams/ch7-boundary-source.png']]);
+  function answerBody(item){const diagram=diagrams.get(item.diagram);return `<div class="answer-points">${item.answer.map(p=>`<p>${escape(p)}</p>`).join('')}</div>${item.explanation?`<p class="explanation">${escape(item.explanation)}</p>`:''}${diagram?`<figure class="knowledge-diagram"><a href="${diagram}" target="_blank" rel="noopener"><img src="${diagram}" alt="${escape(item.title)}" loading="lazy"></a><figcaption>${item.diagram==='ml-boundary'?'课件原图':'按课件结构整理'} · 点图可放大</figcaption></figure>`:''}${item.sourceNote?`<p class="source-note">${escape(item.sourceNote)}</p>`:''}${item.level?`<p class="knowledge-scope">复习提示：${escape(item.level)}</p>`:''}${item.hint?`<p class="memory-hint"><span>记忆提示</span>${escape(item.hint)}</p>`:''}`;}
   function flagButton(id,kind){const active=getRecord(id)[kind],name=kind==='wrong'?'错题':'要再复习';return `<button class="flag-button ${kind} ${active?'active':''}" data-action="flag" data-id="${escape(id)}" data-value="${kind}" aria-pressed="${active}">${icon(kind==='wrong'?'wrong':'refresh')}${active?'已标记：'+name:name}</button>`;}
   function knowledgeCard(k){
     const open=opened.has(k.id),flag=getRecord(k.id).review;
@@ -102,7 +103,7 @@
     const isOpen=opened.has('checklist-'+topic),done=list.items.filter(item=>state.checklist.includes(item.id)).length;
     return `<section class="chapter-checklist"><button class="checklist-heading" data-action="outline-toggle" data-id="${escape(topic)}" aria-expanded="${isOpen}" aria-controls="checklist-${escape(topic)}"><h3>${escape(list.title)}</h3><span>${done} / ${list.items.length}</span>${icon(isOpen?'up':'down')}</button><div id="checklist-${escape(topic)}" ${isOpen?'':'hidden'}>${isOpen?`<p class="checklist-help">能独立复述或画出来，再勾选。</p><div class="checklist-items">${list.items.map(item=>{const checked=state.checklist.includes(item.id);return `<button class="checklist-item ${checked?'checked':''}" role="checkbox" aria-checked="${checked}" data-action="checklist" data-id="${escape(item.id)}"><span class="check-square" aria-hidden="true">${checked?'✓':''}</span><span>${escape(item.text)}</span></button>`;}).join('')}</div>`:''}</div></section>`;
   }
-  function types(){return pageHead('按题型练习','先作答，再点击查看答案。')+demoNote()+`<div class="topic-grid">${Object.entries(TYPES).map(([id,t])=>`<button class="topic-card type-card" data-action="type" data-id="${id}"><span class="count">${content.questions.filter(q=>q.type===id).length} 道${content.demo?'示例':''}题</span><span class="type-symbol" aria-hidden="true">${t.symbol}</span><h2>${t.name}</h2></button>`).join('')}</div><button class="wide-button" data-action="shuffle">${icon('shuffle')}混合题型，随机练习</button>`;}
+  function types(){const qs=scopedQuestions();return pageHead('按题型练习','先选章节，再选题型；也可以跨章节练习。')+demoNote()+`<div class="topic-filters" role="group" aria-label="按章节筛选练习题"><button class="filter-button ${questionTopicFilter==='all'?'active':''}" data-action="type-topic" data-id="all" aria-pressed="${questionTopicFilter==='all'}">全部章节</button>${content.topics.filter(t=>content.questions.some(q=>q.topic===t.id)).map(t=>`<button class="filter-button ${questionTopicFilter===t.id?'active':''}" data-action="type-topic" data-id="${escape(t.id)}" aria-pressed="${questionTopicFilter===t.id}">${escape(t.title)}</button>`).join('')}</div><div class="topic-grid">${Object.entries(TYPES).map(([id,t])=>`<button class="topic-card type-card" data-action="type" data-id="${id}" ${qs.some(q=>q.type===id)?'':'disabled'}><span class="count">${qs.filter(q=>q.type===id).length} 道${content.demo?'示例':''}题</span><span class="type-symbol" aria-hidden="true">${t.symbol}</span><h2>${t.name}</h2></button>`).join('')}</div><button class="wide-button" data-action="shuffle">${icon('shuffle')}当前章节范围内，混合题型随机练习</button>`;}
   function study(){
     if(!state.last)return empty('还没有开始练习','先选择一种题型。','types','选择题型');
     const s=state.last,q=questionMap.get(s.ids[s.index]);
@@ -156,8 +157,9 @@
         if(opened.has(id))opened.delete(id);else{opened.add(id);state.records[id]={...getRecord(id),seen:true};save();}
         render();document.getElementById('toggle-'+id)?.focus({preventScroll:true});break;
       }
-      case 'type':if(TYPES[id])start(content.questions.filter(q=>q.type===id).map(q=>q.id),TYPES[id].name,'types');break;
-      case 'shuffle':start(allQuestionIds(),'混合题型','types',true);break;
+      case 'type-topic':if(id==='all'||topicMap.has(id)){questionTopicFilter=id;render();}break;
+      case 'type':if(TYPES[id])start(scopedQuestions().filter(q=>q.type===id).map(q=>q.id),(questionTopicFilter==='all'?'全部章节':topicMap.get(questionTopicFilter).title)+' · '+TYPES[id].name,'types');break;
+      case 'shuffle':start(scopedQuestions().map(q=>q.id),(questionTopicFilter==='all'?'全部章节':topicMap.get(questionTopicFilter).title)+' · 混合题型','types',true);break;
       case 'resume':if(state.last){state.last.complete=false;save();go('study');}break;
       case 'leave':go(state.last?.origin||'types');break;
       case 'pick':if(!revealed){selection=Number(value);graded=false;render();}break;
