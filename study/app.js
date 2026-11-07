@@ -26,15 +26,18 @@
   const KEY='yiyeyiwen.study.v1';
   const routes=['home','topics','types','wrong','review','study','summary'];
   const checklistIds=new Set((content.checklists||[]).flatMap(c=>c.items.map(item=>item.id)));
-  const emptyState=()=>({records:{},last:null,checklist:[]});
+  const emptyState=()=>({records:{},archivedRecords:{},last:null,checklist:[],knowledge:null});
   let storageOkay=true;
   function load(){
     try{
       const parsed=JSON.parse(localStorage.getItem(KEY)||'null');
       if(!parsed||typeof parsed!=='object')return emptyState();
-      const records={};
-      for(const [id,r] of Object.entries(parsed.records||{})){
-        if(itemMap.has(id)&&r&&typeof r==='object')records[id]={seen:!!r.seen,wrong:questionMap.has(id)&&r.wrong===true,review:r.review===true||r.status==='review'};
+      const records=Object.create(null),archivedRecords=Object.create(null);
+      for(const [id,r] of Object.entries({...parsed.archivedRecords,...parsed.records})){
+        if(r&&typeof r==='object'){
+          const clean={seen:!!r.seen,wrong:r.wrong===true,review:r.review===true||r.status==='review'};
+          if(itemMap.has(id)){clean.wrong=questionMap.has(id)&&clean.wrong;records[id]=clean;}else archivedRecords[id]=clean;
+        }
       }
       let last=null;
       if(parsed.last&&Array.isArray(parsed.last.ids)){
@@ -42,11 +45,16 @@
         if(ids.length)last={ids,index:Math.max(0,Math.min(Number.isInteger(parsed.last.index)?parsed.last.index:0,ids.length-1)),label:String(parsed.last.label||'题型练习'),origin:['types','wrong','review','home'].includes(parsed.last.origin)?parsed.last.origin:'types',seen:Array.isArray(parsed.last.seen)?[...new Set(parsed.last.seen.filter(id=>ids.includes(id)))]:[],complete:!!parsed.last.complete};
       }
       const checklist=Array.isArray(parsed.checklist)?[...new Set(parsed.checklist.filter(id=>checklistIds.has(id)))]:[];
-      return {records,last,checklist};
+      let knowledge=null;
+      if(parsed.knowledge&&Array.isArray(parsed.knowledge.ids)){
+        const ids=[...new Set(parsed.knowledge.ids.filter(id=>knowledgeMap.has(id)))];
+        if(ids.length)knowledge={ids,index:Math.max(0,Math.min(Number.isInteger(parsed.knowledge.index)?parsed.knowledge.index:0,ids.length-1)),order:parsed.knowledge.order==='random'?'random':'sequence',topic:topicMap.has(parsed.knowledge.topic)?parsed.knowledge.topic:'all',scope:parsed.knowledge.scope==='review'?'review':'chapter',version:String(parsed.knowledge.version||'')};
+      }
+      return {records,archivedRecords,last,checklist,knowledge};
     }catch{storageOkay=false;return emptyState();}
   }
   let state=load(),revealed=false,selection=null,graded=false,noticeTimer;
-  let topicFilter='all',questionTopicFilter='all';
+  let questionTopicFilter='all',knowledgeRevealed=false;
   const opened=new Set();
   const main=document.getElementById('main');
   const getRecord=id=>state.records[id]||{seen:false,wrong:false,review:false};
@@ -60,7 +68,7 @@
   function shuffle(ids){const result=[...ids];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
   function route(){const r=location.hash.slice(1);return routes.includes(r)?r:'home';}
   function resetQuestion(){revealed=false;selection=null;graded=false;}
-  function go(next){resetQuestion();if(route()===next){render();window.scrollTo({top:0});}else location.hash=next;}
+  function go(next){resetQuestion();knowledgeRevealed=false;if(route()===next){render();window.scrollTo({top:0});}else location.hash=next;}
   function start(ids,label,origin='types',random=false){
     const list=[...new Set(ids.filter(id=>questionMap.has(id)))];
     if(!list.length){toast('这里暂时没有题目。');return;}
@@ -83,20 +91,37 @@
       ${resume?`<button class="continue-card" data-action="resume"><span class="continue-icon">${icon('play')}</span><span><h3>继续：${escape(state.last.label)}</h3><p>第 ${state.last.index+1} / ${state.last.ids.length} 题</p></span>${icon('arrow')}</button>`:''}
       <p class="storage-note">${storageOkay?'错题和复习标记保存在当前浏览器，不跨设备同步。':'当前浏览器无法保存记录，仍可查看知识点和练习题。'}</p>`;
   }
-  const diagrams=new Map([['memory','diagrams/ch1-memory.svg'],['hardware','diagrams/ch1-hardware.svg'],['system','diagrams/ch1-system.svg'],['ml-boundary','diagrams/ch7-boundary-source.png']]);
-  function answerBody(item){const diagram=diagrams.get(item.diagram);return `<div class="answer-points">${item.answer.map(p=>`<p>${escape(p)}</p>`).join('')}</div>${item.explanation?`<p class="explanation">${escape(item.explanation)}</p>`:''}${diagram?`<figure class="knowledge-diagram"><a href="${diagram}" target="_blank" rel="noopener"><img src="${diagram}" alt="${escape(item.title)}" loading="lazy"></a><figcaption>${item.diagram==='ml-boundary'?'课件原图':'按课件结构整理'} · 点图可放大</figcaption></figure>`:''}${item.sourceNote?`<p class="source-note">${escape(item.sourceNote)}</p>`:''}${item.level?`<p class="knowledge-scope">复习提示：${escape(item.level)}</p>`:''}${item.hint?`<p class="memory-hint"><span>记忆提示</span>${escape(item.hint)}</p>`:''}`;}
+  const diagrams=new Map([['memory','diagrams/ch1-memory-source.png'],['hardware','diagrams/ch1-hardware-source.png'],['system','diagrams/ch1-system-source.png'],['software','diagrams/ch1-software-source.png'],['ml-boundary','diagrams/ch7-boundary-source.png']]);
+  function answerBody(item){const diagram=item.type&&item.diagram!=='ml-boundary'?({memory:'diagrams/ch1-memory.svg',hardware:'diagrams/ch1-hardware.svg',system:'diagrams/ch1-system.svg'}[item.diagram]):diagrams.get(item.diagram);return `<div class="answer-points">${item.answer.map(p=>`<p>${escape(p)}</p>`).join('')}</div>${item.explanation?`<p class="explanation">${escape(item.explanation)}</p>`:''}${diagram?`<figure class="knowledge-diagram"><a href="${diagram}" target="_blank" rel="noopener"><img src="${diagram}" alt="${escape(item.title)}" loading="lazy"></a><figcaption>${item.type&&item.diagram!=='ml-boundary'?'按课件结构整理':'课件原图'} · 点图可放大</figcaption></figure>`:''}${item.sourceNote?`<p class="source-note">${escape(item.sourceNote)}</p>`:''}${item.level?`<p class="knowledge-scope">复习提示：${escape(item.level)}</p>`:''}${item.hint?`<p class="memory-hint"><span>记忆提示</span>${escape(item.hint)}</p>`:''}`;}
   function flagButton(id,kind){const active=getRecord(id)[kind],name=kind==='wrong'?'错题':'要再复习';return `<button class="flag-button ${kind} ${active?'active':''}" data-action="flag" data-id="${escape(id)}" data-value="${kind}" aria-pressed="${active}">${icon(kind==='wrong'?'wrong':'refresh')}${active?'已标记：'+name:name}</button>`;}
-  function knowledgeCard(k){
-    const open=opened.has(k.id),flag=getRecord(k.id).review;
-    return `<article class="knowledge-card ${open?'is-open':''}"><button class="knowledge-toggle" id="toggle-${escape(k.id)}" data-action="knowledge-toggle" data-id="${escape(k.id)}" aria-expanded="${open}" aria-controls="answer-${escape(k.id)}"><h2>${escape(k.title)}</h2><span class="knowledge-toggle-end">${flag?'<span class="review-badge">要再复习</span>':''}${icon(open?'up':'down')}</span></button><div id="answer-${escape(k.id)}" class="knowledge-detail" ${open?'':'hidden'}>${open?`<section class="answer-panel" aria-label="知识点答案">${answerBody(k)}</section><div class="knowledge-actions">${flagButton(k.id,'review')}</div>`:''}</div></article>`;
+  function knowledgeIds(topic='all',scope='chapter'){return [...knowledgeMap.values()].filter(k=>(topic==='all'||k.topic===topic)&&(scope!=='review'||getRecord(k.id).review)).map(k=>k.id);}
+  function startKnowledge(topic='all',order='sequence',scope='chapter',anchor=null){
+    const ids=knowledgeIds(topic,scope);if(!ids.length){toast('这里暂时没有知识点。');return;}
+    const list=order==='random'?shuffle(ids):ids;
+    state.knowledge={ids:list,index:anchor&&list.includes(anchor)?list.indexOf(anchor):0,topic,scope,order,version:content.version};knowledgeRevealed=false;save();
+  }
+  function ensureKnowledge(){
+    const current=state.knowledge;
+    if(!current)startKnowledge();
+    else if(current.version!==content.version)startKnowledge(current.topic,current.order,current.scope,current.ids[current.index]);
+    return state.knowledge;
+  }
+  function knowledgeStep(delta){
+    const s=ensureKnowledge();if(!s)return;
+    if(delta>0&&s.index===s.ids.length-1){
+      startKnowledge(s.topic,s.order,s.scope);toast('已开始新一轮。');
+    }else{s.index=Math.max(0,Math.min(s.index+delta,s.ids.length-1));knowledgeRevealed=false;save();}
+    render();window.scrollTo({top:0});
   }
   function topics(){
-    const available=content.topics.filter(t=>[...knowledgeMap.values()].some(k=>k.topic===t.id));
-    const visible=available.filter(t=>topicFilter==='all'||topicFilter===t.id);
-    return pageHead('过知识点','点一下知识点名称查看答案，再点一下收起。')+demoNote()+`<div class="topic-filters" role="group" aria-label="按模块筛选"><button class="filter-button ${topicFilter==='all'?'active':''}" data-action="topic-filter" data-id="all" aria-pressed="${topicFilter==='all'}">全部</button>${available.map(t=>`<button class="filter-button ${topicFilter===t.id?'active':''}" data-action="topic-filter" data-id="${escape(t.id)}" aria-pressed="${topicFilter===t.id}">${escape(t.title)}</button>`).join('')}</div>`+visible.map(t=>{
-      const list=[...knowledgeMap.values()].filter(k=>k.topic===t.id);
-      return `<section class="knowledge-group"><div class="section-heading"><h2>${escape(t.title)}</h2><small>${list.length} 个知识点</small></div>${chapterChecklist(t.id)}<div class="list-stack">${list.map(knowledgeCard).join('')}</div></section>`;
-    }).join('');
+    const s=ensureKnowledge();if(!s)return empty('暂无知识点','请先添加整理内容。','home','返回首页');
+    const k=knowledgeMap.get(s.ids[s.index]),available=content.topics.filter(t=>knowledgeIds(t.id).length);
+    const provenance={outline:'整理稿原文',slides:'课件原文 / 原图',supplement:'补充解答（原稿未给答案）'};
+    return `<div class="knowledge-page">${pageHead('过知识点','一次一项，点开答案后再继续。')}<div class="knowledge-layout"><aside class="knowledge-chapters" aria-label="选择章节"><div class="topic-filters"><button class="filter-button ${s.topic==='all'&&s.scope==='chapter'?'active':''}" data-action="topic-filter" data-id="all" aria-pressed="${s.topic==='all'&&s.scope==='chapter'}">全部章节</button>${available.map(t=>`<button class="filter-button ${s.topic===t.id&&s.scope==='chapter'?'active':''}" data-action="topic-filter" data-id="${escape(t.id)}" aria-pressed="${s.topic===t.id&&s.scope==='chapter'}">${escape(t.title)}</button>`).join('')}</div></aside>
+      <section class="knowledge-reader"><div class="knowledge-toolbar"><div class="knowledge-order" role="group" aria-label="复习顺序"><button data-action="knowledge-order" data-value="sequence" aria-pressed="${s.order==='sequence'}" class="${s.order==='sequence'?'active':''}">顺序</button><button data-action="knowledge-order" data-value="random" aria-pressed="${s.order==='random'}" class="${s.order==='random'?'active':''}">乱序</button></div><strong class="knowledge-counter">${s.index+1} / ${s.ids.length}</strong></div>
+      ${s.scope==='review'?'<p class="knowledge-scope-label">正在过“要再复习”的知识点</p>':''}<p class="knowledge-chapter-label">${escape(topicMap.get(k.topic)?.title)}</p>
+      <article class="knowledge-single"><span class="content-origin">${escape(provenance[k.origin]||'整理稿原文')}</span><button class="knowledge-title-button" data-action="knowledge-reveal" aria-expanded="${knowledgeRevealed}" aria-controls="knowledge-answer"><h2>${escape(k.title)}</h2></button><div id="knowledge-answer" ${knowledgeRevealed?'':'hidden'}>${knowledgeRevealed?`<section class="answer-panel" aria-label="知识点答案">${answerBody(k)}</section>`:''}</div><button class="answer-trigger" data-action="knowledge-reveal" aria-expanded="${knowledgeRevealed}" aria-controls="knowledge-answer">${icon(knowledgeRevealed?'up':'eye')}${knowledgeRevealed?'收起答案':'查看答案'}</button></article>
+      <div class="knowledge-reader-actions">${flagButton(k.id,'review')}</div><div class="question-nav knowledge-navigation"><button class="previous" data-action="knowledge-previous" ${s.index===0?'disabled':''}>上一个</button><button class="next" data-action="knowledge-next">下一个${icon('arrow')}</button></div>${chapterChecklist(k.topic)}</section></div></div>`;
   }
   function chapterChecklist(topic){
     const list=(content.checklists||[]).find(c=>c.topic===topic);if(!list)return '';
@@ -128,7 +153,7 @@
     const questions=ids.filter(id=>questionMap.has(id));
     html+=`<div class="section-heading"><small>共 ${ids.length} 项</small>${questions.length?`<button class="quiet-link" data-action="collection-start" data-value="${kind}">练习其中 ${questions.length} 道题${icon('arrow')}</button>`:''}</div><div class="list-stack">`;
     html+=ids.map(id=>{
-      if(knowledgeMap.has(id))return knowledgeCard(knowledgeMap.get(id));
+      if(knowledgeMap.has(id)){const k=knowledgeMap.get(id);return `<article class="collection-card"><button class="collection-card-main" data-action="open-knowledge" data-id="${escape(id)}"><p class="tagline">${escape(topicMap.get(k.topic)?.title)} · 知识点</p><h2>${escape(k.title)}</h2></button><button class="remove-record" data-action="flag" data-id="${escape(id)}" data-value="review" aria-label="移出要再复习：${escape(k.title)}">移出</button></article>`;}
       const q=questionMap.get(id);
       return `<article class="collection-card"><button class="collection-card-main" data-action="open-item" data-id="${escape(id)}" data-origin="${kind}"><p class="tagline">${escape(topicMap.get(q.topic)?.title)} · ${TYPES[q.type].name}</p><h2>${escape(q.title)}</h2></button><button class="remove-record" data-action="flag" data-id="${escape(id)}" data-value="${kind}" aria-label="移出${wrong?'错题':'要再复习'}：${escape(q.title)}">移出</button></article>`;
     }).join('');
@@ -151,12 +176,16 @@
     switch(action){
       case 'outline-toggle':if(topicMap.has(id)){const key='checklist-'+id;opened.has(key)?opened.delete(key):opened.add(key);render();}break;
       case 'checklist':if(checklistIds.has(id)){state.checklist=state.checklist.includes(id)?state.checklist.filter(value=>value!==id):[...state.checklist,id];save();render();}break;
-      case 'topic-filter':if(id==='all'||topicMap.has(id)){topicFilter=id;render();}break;
-      case 'knowledge-toggle':{
-        if(!knowledgeMap.has(id))break;
-        if(opened.has(id))opened.delete(id);else{opened.add(id);state.records[id]={...getRecord(id),seen:true};save();}
-        render();document.getElementById('toggle-'+id)?.focus({preventScroll:true});break;
+      case 'topic-filter':if(id==='all'||topicMap.has(id)){startKnowledge(id,state.knowledge?.order||'sequence');render();}break;
+      case 'knowledge-order':if(['sequence','random'].includes(value)){const s=ensureKnowledge();startKnowledge(s.topic,value,s.scope);render();}break;
+      case 'knowledge-next':knowledgeStep(1);break;
+      case 'knowledge-previous':knowledgeStep(-1);break;
+      case 'knowledge-reveal':{
+        const s=ensureKnowledge();if(!s)break;knowledgeRevealed=!knowledgeRevealed;
+        if(knowledgeRevealed){const kid=s.ids[s.index];state.records[kid]={...getRecord(kid),seen:true};save();}
+        render();main.querySelector('[data-action="knowledge-reveal"]')?.focus({preventScroll:true});break;
       }
+      case 'open-knowledge':if(knowledgeMap.has(id)){startKnowledge('all','sequence','review',id);go('topics');}break;
       case 'type-topic':if(id==='all'||topicMap.has(id)){questionTopicFilter=id;render();}break;
       case 'type':if(TYPES[id])start(scopedQuestions().filter(q=>q.type===id).map(q=>q.id),(questionTopicFilter==='all'?'全部章节':topicMap.get(questionTopicFilter).title)+' · '+TYPES[id].name,'types');break;
       case 'shuffle':start(scopedQuestions().map(q=>q.id),(questionTopicFilter==='all'?'全部章节':topicMap.get(questionTopicFilter).title)+' · 混合题型','types',true);break;
@@ -188,8 +217,9 @@
       case 'session-wrong':if(state.last)start(state.last.ids.filter(qid=>getRecord(qid).wrong),'本轮错题','wrong');break;
     }
   });
-  window.addEventListener('hashchange',()=>{resetQuestion();render();window.scrollTo({top:0});main.focus({preventScroll:true});});
+  window.addEventListener('hashchange',()=>{resetQuestion();knowledgeRevealed=false;render();window.scrollTo({top:0});main.focus({preventScroll:true});});
   document.addEventListener('keydown',e=>{if(route()!=='study'||e.altKey||e.ctrlKey||e.metaKey||['INPUT','TEXTAREA'].includes(e.target.tagName))return;if(e.key==='ArrowRight'){e.preventDefault();step(1);}if(e.key==='ArrowLeft'){e.preventDefault();step(-1);}});
+  document.addEventListener('keydown',e=>{if(route()!=='topics'||e.altKey||e.ctrlKey||e.metaKey||['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;if(e.key==='ArrowRight'){e.preventDefault();knowledgeStep(1);}if(e.key==='ArrowLeft'){e.preventDefault();knowledgeStep(-1);}});
   window.RecallCore=Object.freeze({counts,shuffle,escape,getState:()=>JSON.parse(JSON.stringify(state)),contentVersion:content.version});
   render();
 })();
