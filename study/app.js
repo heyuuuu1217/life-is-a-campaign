@@ -103,12 +103,13 @@
   function ensureKnowledge(){
     const current=state.knowledge;
     if(!current)startKnowledge();
-    else if(current.version!==content.version)startKnowledge(current.topic,current.order,current.scope,current.ids[current.index]);
+    else if(current.version!==content.version){if(knowledgeIds(current.topic,current.scope).length)startKnowledge(current.topic,current.order,current.scope,current.ids[current.index]);else startKnowledge('all',current.order);}
     return state.knowledge;
   }
   function knowledgeStep(delta){
     const s=ensureKnowledge();if(!s)return;
     if(delta>0&&s.index===s.ids.length-1){
+      if(s.scope==='review'&&!knowledgeIds(s.topic,s.scope).length){state.knowledge=null;knowledgeRevealed=false;save();go('review');return;}
       startKnowledge(s.topic,s.order,s.scope);toast('已开始新一轮。');
     }else{s.index=Math.max(0,Math.min(s.index+delta,s.ids.length-1));knowledgeRevealed=false;save();}
     render();window.scrollTo({top:0});
